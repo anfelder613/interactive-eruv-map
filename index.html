@@ -96,6 +96,8 @@
   .step-card p{ margin:0; font-size: .88rem; color: var(--ink-soft); }
   .step-card.active{ border-color: var(--gold); background: #fffdf6; }
   .step-card.active .num{ color: var(--gold); }
+  .step-card[data-target]{ cursor:pointer; transition: box-shadow .15s ease, border-color .15s ease; }
+  .step-card[data-target]:hover{ border-color: var(--gold); box-shadow: var(--shadow); }
 
   @media (max-width: 760px){
     .steps-row{ grid-template-columns: 1fr 1fr; }
@@ -277,6 +279,26 @@
   .plot-detail.show{ display:block; }
   .plot-detail h4{ margin:0 0 6px; }
 
+  /* ---------- Check the City ---------- */
+  .spot{ cursor:pointer; }
+  .spot:hover .spot-marker{ opacity:.8; }
+  .domain-legend{ display:flex; flex-wrap:wrap; gap: 8px 14px; margin-top: 12px; font-size:.8rem; color: var(--ink-soft); }
+  .domain-legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .domain-legend i{ width:12px; height:12px; border-radius:50%; display:inline-block; }
+  .domain-swatch{ width: 34px; height: 34px; border-radius: 50%; flex: 0 0 auto; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.78rem;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+  .opt-def{ font-size:.85rem; color: var(--ink-soft); }
+  .subhead{ margin: 46px 0 8px; font-size: 1.3rem; }
+  .subhead + p{ color: var(--ink-soft); max-width: 68ch; margin: 0 0 22px; }
+  .opinion-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .opinion-list li{ border-radius:10px; padding: 10px 12px; background: var(--cream-2); font-size:.88rem; }
+  .opinion-list li strong{ display:block; font-size:.92rem; }
+  .opinion-list li.rh{ background: var(--red-soft); }
+  .opinion-list li.ok{ background: var(--green-soft); }
+  .opinion-list .verdict-pill{ margin: 4px 0 2px; }
+  .meter-summary{ font-weight:600; margin: 0 0 12px; }
+
   /* ---------- Footer ---------- */
   footer{ padding: 46px 0 70px; }
   footer h3{ font-size:1.1rem; }
@@ -300,26 +322,27 @@
 
 <header class="hero">
   <div class="wrap">
-    <span class="eyebrow">Based on Halachipedia · Eruvin</span>
+    <span class="eyebrow">Based on Halachipedia · Hotzaah &amp; Eruvin</span>
     <h1 class="title">Interactive Eruv Map <span class="hebrew">עירוב</span></h1>
     <p class="lede">
       An eruv lets a community carry outside on Shabbat by halachically enclosing the
-      neighborhood. <strong>Build one yourself</strong> &mdash; place the walls, judge the
-      tricky pole-and-wire cases, and explore the geometry of a slope &mdash; all drawn from
-      the sources collected on
-      <a href="https://halachipedia.com/index.php?title=Eruvin" target="_blank" rel="noopener">Halachipedia&rsquo;s Eruvin article</a>.
+      neighborhood. <strong>Build one yourself</strong> &mdash; check whether the city can
+      have an eruv at all, place the walls, judge the tricky pole-and-wire cases, and explore
+      the geometry of a slope &mdash; all drawn from the sources collected on Halachipedia&rsquo;s
+      <a href="https://halachipedia.com/index.php?title=Hotzaah" target="_blank" rel="noopener">Hotzaah</a> and
+      <a href="https://halachipedia.com/index.php?title=Eruvin" target="_blank" rel="noopener">Eruvin</a> articles.
     </p>
 
     <div class="steps-row" id="stepsRow">
-      <div class="step-card" data-step="1">
+      <div class="step-card active" data-step="1" data-target="city">
         <span class="num">1</span>
         <h3>Check the City</h3>
-        <p>Make sure the area isn&rsquo;t a <em>reshut harabbim</em> &mdash; population, streets, and walls all matter.</p>
+        <p>Make sure the area isn&rsquo;t a <em>reshut harabbim</em> &mdash; population, streets, and walls all matter. <strong>Play: City Inspector.</strong></p>
       </div>
-      <div class="step-card active" data-step="2">
+      <div class="step-card" data-step="2" data-target="game">
         <span class="num">2</span>
         <h3>Build the Walls</h3>
-        <p>Buildings, fences, and <em>tzurot hapetach</em> close every gap. <strong>This is the game below.</strong></p>
+        <p>Buildings, fences, and <em>tzurot hapetach</em> close every gap. <strong>Play: Build the Block.</strong></p>
       </div>
       <div class="step-card" data-step="3">
         <span class="num">3</span>
@@ -334,6 +357,162 @@
     </div>
   </div>
 </header>
+
+<!-- ================= STEP 1: CHECK THE CITY ================= -->
+<section class="block" id="city">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Step 1 &middot; Hands-on</span>
+      <h2>City Inspector</h2>
+      <p>
+        Before anyone strings a wire, you have to know what kind of <em>reshut</em> (domain) each
+        part of town is. Click every marker on the map and sort it into one of the four Shabbat
+        domains. The sources for this section are Halachipedia&rsquo;s
+        <a href="https://halachipedia.com/index.php?title=Hotzaah" target="_blank" rel="noopener">Hotzaah</a>
+        article, so its tags read &ldquo;Hotzaah [N]&rdquo;.
+      </p>
+    </div>
+
+    <div class="game-layout">
+      <div class="map-card">
+        <svg viewBox="0 0 560 360" id="citySvg" font-family="Georgia, serif">
+          <rect x="0" y="0" width="560" height="360" fill="#f6efe0"/>
+
+          <!-- decorative houses -->
+          <rect x="70" y="30" width="70" height="80" fill="#c9b49a"/>
+          <rect x="160" y="30" width="70" height="80" fill="#c9b49a"/>
+          <rect x="390" y="236" width="64" height="84" fill="#c9b49a"/>
+          <rect x="474" y="236" width="64" height="84" fill="#c9b49a"/>
+
+          <!-- river -->
+          <g class="spot" data-spot="river">
+            <rect x="0" y="0" width="46" height="360" fill="#cfe0ea"/>
+            <path d="M10 30 q6 -6 12 0 t12 0 M10 255 q6 -6 12 0 t12 0 M10 340 q6 -6 12 0 t12 0" fill="none" stroke="#8fb1c7" stroke-width="2"/>
+            <text x="23" y="150" text-anchor="middle" font-size="11" fill="#3d6c8f" transform="rotate(-90 23 150)">River &middot; 10+ tefachim deep</text>
+            <circle class="spot-marker" cx="23" cy="300" r="12" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
+            <text class="spot-q" x="23" y="305" text-anchor="middle" font-size="14" fill="#b64a3a">?</text>
+          </g>
+
+          <!-- main street -->
+          <g class="spot" data-spot="street">
+            <rect x="46" y="150" width="514" height="54" fill="#ddd5c4"/>
+            <line x1="46" y1="177" x2="560" y2="177" stroke="#fff" stroke-width="2" stroke-dasharray="14 10"/>
+            <text x="400" y="197" text-anchor="middle" font-size="11" fill="#5c5147">Main Street &middot; 20 amot wide</text>
+            <circle class="spot-marker" cx="400" cy="170" r="12" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
+            <text class="spot-q" x="400" y="175" text-anchor="middle" font-size="14" fill="#b64a3a">?</text>
+          </g>
+
+          <!-- fenced yard -->
+          <g class="spot" data-spot="yard">
+            <rect x="400" y="22" width="140" height="118" fill="#e3eedb" stroke="#6f5a46" stroke-width="3"/>
+            <text x="470" y="48" text-anchor="middle" font-size="11" fill="#5c5147">Fenced yard</text>
+            <text x="470" y="62" text-anchor="middle" font-size="10" fill="#5c5147">fence 10 tefachim</text>
+            <circle class="spot-marker" cx="470" cy="98" r="12" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
+            <text class="spot-q" x="470" y="103" text-anchor="middle" font-size="14" fill="#b64a3a">?</text>
+          </g>
+
+          <!-- house + covered entranceway -->
+          <rect x="310" y="30" width="80" height="88" fill="#a9876a"/>
+          <g class="spot" data-spot="porch">
+            <rect x="334" y="118" width="32" height="22" fill="#eadfc9"/>
+            <rect x="331" y="116" width="38" height="4" fill="#6f5a46"/>
+            <rect x="331" y="118" width="3" height="22" fill="#6f5a46"/>
+            <rect x="366" y="118" width="3" height="22" fill="#6f5a46"/>
+            <text x="326" y="136" text-anchor="end" font-size="10.5" fill="#5c5147">Covered entranceway</text>
+            <circle class="spot-marker" cx="350" cy="131" r="10" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
+            <text class="spot-q" x="350" y="135.5" text-anchor="middle" font-size="12" fill="#b64a3a">?</text>
+          </g>
+
+          <!-- open field with a low wall -->
+          <g class="spot" data-spot="field">
+            <rect x="70" y="228" width="270" height="112" fill="#ebe5c6" stroke="#a79a77" stroke-width="2" stroke-dasharray="3 3"/>
+            <text x="205" y="248" text-anchor="middle" font-size="11" fill="#5c5147">Open field &middot; wall only 5 tefachim</text>
+            <circle class="spot-marker" cx="110" cy="300" r="12" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
+            <text class="spot-q" x="110" y="305" text-anchor="middle" font-size="14" fill="#b64a3a">?</text>
+          </g>
+
+          <!-- stone post standing in the street -->
+          <g class="spot" data-spot="postStreet">
+            <rect x="170" y="163" width="14" height="14" fill="#7d6b57"/>
+            <text x="177" y="197" text-anchor="middle" font-size="10" fill="#5c5147">Stone post</text>
+            <circle class="spot-marker" cx="200" cy="165" r="10" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
+            <text class="spot-q" x="200" y="169.5" text-anchor="middle" font-size="12" fill="#b64a3a">?</text>
+          </g>
+
+          <!-- identical post standing in the field -->
+          <g class="spot" data-spot="postField">
+            <rect x="240" y="290" width="14" height="14" fill="#7d6b57"/>
+            <text x="247" y="326" text-anchor="middle" font-size="10" fill="#5c5147">Same post, in the field</text>
+            <circle class="spot-marker" cx="270" cy="292" r="10" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
+            <text class="spot-q" x="270" y="296.5" text-anchor="middle" font-size="12" fill="#b64a3a">?</text>
+          </g>
+        </svg>
+        <div class="domain-legend" id="domainLegend"></div>
+      </div>
+
+      <div class="progress-panel" id="cityPanel">
+        <h3>Domains sorted: <span id="cityCount">0</span> / 7</h3>
+        <ul class="task-list" id="cityList"></ul>
+        <div class="win-banner" id="cityWin">
+          🎉 Every corner of town is sorted! The one that decides everything is Main Street:
+          most poskim hold that a tzurat hapetach eruv can&rsquo;t enclose a true <em>reshut harabbim</em>
+          (doors are needed) <span class="source-tag">Hotzaah [60]</span>. Use the City Meter
+          below to see when a street like that really is one.
+        </div>
+        <div style="margin-top:14px;">
+          <button class="btn" id="resetCity">Reset map</button>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="subhead">City Meter: Is Main Street a <em>Reshut Harabbim</em>?</h3>
+    <p>
+      Whether a street is a true public domain depends on whose view you follow. Change the
+      city and watch four major approaches give their verdicts.
+    </p>
+    <div class="slope-layout">
+      <div class="slope-card">
+        <div class="control-row">
+          <span style="font-size:.85rem; font-weight:600;">Main street width:</span>
+          <div class="toggle-pair" id="widthToggle">
+            <button data-val="narrow">under 16 amot</button>
+            <button data-val="wide" class="active">16 amot or wider</button>
+          </div>
+        </div>
+        <div class="control-row">
+          <label for="popRange">Population</label>
+          <input type="range" id="popRange" min="0" max="6" step="1" value="1">
+          <span id="popLabel" style="font-size:.85rem; font-weight:600; min-width:84px;"></span>
+        </div>
+        <div class="control-row">
+          <span style="font-size:.85rem; font-weight:600;">Surrounding walls:</span>
+          <div class="toggle-pair" id="wallToggle">
+            <button data-val="open" class="active">open city</button>
+            <button data-val="omed">omed merubeh on 3 sides</button>
+          </div>
+        </div>
+        <p style="font-size:.85rem; color:var(--ink-soft); margin:14px 0 0;">
+          <strong>Omed merubeh</strong> means the standing (closed) parts of a wall are
+          greater than its gaps, the reverse of <em>parutz merubeh al haomed</em>
+          <span class="source-tag">Eruvin [16]</span>. <strong>Who counts toward 600,000?</strong> Men, women,
+          children and non-Jews <span class="source-tag">Hotzaah [68]</span>, tourists
+          <span class="source-tag">Hotzaah [69]</span>, and, per most poskim, people in cars,
+          trains <span class="source-tag">Hotzaah [70]</span> and inside their homes
+          <span class="source-tag">Hotzaah [71]</span>.
+        </p>
+      </div>
+      <div class="slope-card">
+        <p class="meter-summary" id="meterSummary"></p>
+        <ul class="opinion-list" id="opinionList"></ul>
+      </div>
+    </div>
+
+    <h3 class="subhead">Real Cities, Real Rulings</h3>
+    <p>How poskim applied these rules to actual communities. Click a city.</p>
+    <div class="plot-grid" id="cityGrid"></div>
+    <div class="plot-detail" id="cityDetail"></div>
+  </div>
+</section>
 
 <!-- ================= GAME: BUILD THE BLOCK ================= -->
 <section class="block" id="game">
@@ -358,7 +537,7 @@
           <!-- NORTH: fixed building wall -->
           <g class="wall-fixed" data-wall="north">
             <rect x="60" y="40" width="400" height="18" fill="#a9876a"/>
-            <text x="260" y="33" text-anchor="middle" font-size="13" font-family="Georgia, serif" fill="#5c5147">Row of buildings &mdash; already a wall</text>
+            <text x="300" y="30" text-anchor="start" font-size="13" font-family="Georgia, serif" fill="#5c5147">Row of buildings &mdash; already a wall</text>
           </g>
 
           <!-- EAST: fixed fence wall -->
@@ -390,7 +569,7 @@
             <circle cx="230" cy="49" r="14" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
             <text x="230" y="53" text-anchor="middle" font-size="13" fill="#b64a3a">?</text>
           </g>
-          <text x="230" y="25" text-anchor="middle" font-size="11.5" font-family="Georgia, serif" fill="#5c5147">Driveway cut in the wall</text>
+          <text x="230" y="30" text-anchor="middle" font-size="11.5" font-family="Georgia, serif" fill="#5c5147">Driveway cut in the wall</text>
         </svg>
       </div>
 
@@ -513,10 +692,10 @@
   <div class="wrap">
     <h3>Sources &amp; further reading</h3>
     <ul>
-      <li><a href="https://halachipedia.com/index.php?title=Eruvin" target="_blank" rel="noopener">Eruvin &ndash; Halachipedia</a> (primary source for every scenario on this page; footnote numbers in brackets match that article&rsquo;s source list)</li>
+      <li><a href="https://halachipedia.com/index.php?title=Eruvin" target="_blank" rel="noopener">Eruvin &ndash; Halachipedia</a> (source for Step 2 and the labs; plain bracketed numbers and &ldquo;Eruvin [N]&rdquo; tags match that article&rsquo;s footnotes)</li>
+      <li><a href="https://halachipedia.com/index.php?title=Hotzaah" target="_blank" rel="noopener">Hotzaah &ndash; Halachipedia</a> (source for Step 1, the City Inspector; &ldquo;Hotzaah [N]&rdquo; tags match that article&rsquo;s footnotes)</li>
       <li><a href="https://halachipedia.com/index.php?title=Introduction_to_the_Modern_Eruv" target="_blank" rel="noopener">Introduction to the Modern Eruv</a> &ndash; Rav Hershel Schachter</li>
       <li><a href="https://halachipedia.com/index.php?title=Eruv_Chatzerot" target="_blank" rel="noopener">Eruv Chatzerot</a></li>
-      <li><a href="https://halachipedia.com/index.php?title=Hotzah" target="_blank" rel="noopener">Hotzaah</a> (reshut harabbim background, Step 1)</li>
     </ul>
     <div class="fine-print">
       This page is a learning game, not a halachic ruling and not a map of any real eruv.
@@ -707,12 +886,12 @@
     if(Object.values(gapState).every(Boolean)){
       const banner = document.getElementById('winBanner');
       banner.classList.add('show');
-      launchConfetti();
+      launchConfetti(document.querySelector('#game .progress-panel'));
     }
   }
   function resetGame(){
     Object.keys(gapState).forEach(k => gapState[k] = false);
-    document.querySelectorAll('.task-list li').forEach(li => li.classList.remove('done'));
+    document.querySelectorAll('#taskList li').forEach(li => li.classList.remove('done'));
     document.getElementById('winBanner').classList.remove('show');
     document.querySelectorAll('.gap-segment').forEach(seg => {
       seg.querySelectorAll('line').forEach(l => { l.setAttribute('stroke', '#b64a3a'); l.setAttribute('stroke-dasharray','10 8'); });
@@ -722,9 +901,8 @@
   }
   document.getElementById('resetGame').addEventListener('click', resetGame);
 
-  function launchConfetti(){
+  function launchConfetti(host){
     const colors = ['#b9892f','#3f7d53','#3d6c8f','#b64a3a'];
-    const host = document.querySelector('.progress-panel');
     host.style.position = 'relative';
     for(let i=0;i<40;i++){
       const piece = document.createElement('div');
@@ -737,6 +915,293 @@
       setTimeout(() => piece.remove(), 3000);
     }
   }
+
+  /* ============================================================
+     DATA: City Inspector (Step 1) — sources are Hotzaah footnotes
+     ============================================================ */
+  const domains = {
+    ry:       { name: "Reshut HaYachid", en: "private domain", abbr: "RY", color: "#3f7d53",
+                def: "At least 4×4 tefachim, enclosed by walls at least 10 tefachim high." },
+    rh:       { name: "Reshut HaRabim", en: "public domain", abbr: "RH", color: "#b64a3a",
+                def: "A street 16 amot wide (some say only if 600,000 people pass through it)." },
+    karmelit: { name: "Karmelit", en: "in-between area", abbr: "K", color: "#b9892f",
+                def: "Walls under 10 tefachim, or an unfenced place the public doesn't walk, like a field or a deep river." },
+    patur:    { name: "Makom Patur", en: "exempt area", abbr: "MP", color: "#3d6c8f",
+                def: "Smaller than 4×4 tefachim and at least 3 tefachim tall, standing in a reshut harabbim." }
+  };
+
+  const spots = {
+    yard: {
+      title: "The Fenced Yard", list: "Fenced yard",
+      desc: "A backyard much larger than 4×4 tefachim, closed in by a fence 10 tefachim high.",
+      answer: "ry", hint: "Check the fence height against the 10-tefach line.",
+      explain: "Walls of at least 10 tefachim around an area of at least 4×4 tefachim make it a reshut hayachid.",
+      source: "Hotzaah [4]"
+    },
+    porch: {
+      title: "The Covered Entranceway", list: "Covered entranceway",
+      desc: "The space in front of the front door: 4×4 tefachim, with walls on both sides and a roof overhead.",
+      answer: "ry", hint: "Walls on two sides plus a roof overhead — what does that enclose?",
+      explain: "An entranceway of 4×4 tefachim with walls on either side and a roof above is a reshut hayachid. Without the walls or roof (and not raised 10 tefachim), it takes the status of whatever domain it faces.",
+      source: "Hotzaah [8]"
+    },
+    street: {
+      title: "Main Street", list: "Main Street",
+      desc: "A through-street 20 amot wide that the whole town walks along.",
+      answer: "rh", hint: "How wide does a public street have to be?",
+      explain: "A street at least 16 amot wide is a reshut harabbim. Some say it only counts if 600,000 people pass through it — test that in the City Meter below.",
+      source: "Hotzaah [5]"
+    },
+    field: {
+      title: "The Open Field", list: "Open field",
+      desc: "A large open field. The wall around it is only 5 tefachim high.",
+      answer: "karmelit", hint: "Is its wall tall enough to make it private?",
+      explain: "A wall under 10 tefachim doesn't make a private domain, and the public doesn't walk through a field, so it's a karmelit.",
+      source: "Hotzaah [6]"
+    },
+    river: {
+      title: "The River", list: "River",
+      desc: "A river at least 10 tefachim deep running along the edge of town.",
+      answer: "karmelit", hint: "Nobody walks through a river, and it has no walls.",
+      explain: "A river 10 tefachim deep is listed explicitly as a karmelit.",
+      source: "Hotzaah [6]"
+    },
+    postStreet: {
+      title: "The Stone Post on Main Street", list: "Stone post in the street",
+      desc: "A stone post in the middle of Main Street. Its top is 3×3 tefachim and it stands 5 tefachim tall.",
+      answer: "patur", hint: "Its top is smaller than 4×4 tefachim.",
+      explain: "Smaller than 4×4 tefachim, at least 3 tefachim tall, and standing in a reshut harabbim: a makom patur.",
+      source: "Hotzaah [7]"
+    },
+    postField: {
+      title: "The Same Post, in the Field", list: "Stone post in the field",
+      desc: "The exact same 3×3, 5-tefach post — but this one stands in the field.",
+      answer: "karmelit", hint: "A makom patur only exists inside a reshut harabbim. What surrounds this post?",
+      explain: "Trick question! A small post is a makom patur only inside a reshut harabbim; inside a karmelit it's treated like the karmelit around it.",
+      source: "Hotzaah [7]"
+    }
+  };
+
+  const spotState = {};
+  const cityList = document.getElementById('cityList');
+
+  document.getElementById('domainLegend').innerHTML = Object.values(domains)
+    .map(d => `<span><i style="background:${d.color}"></i>${d.name}</span>`).join('');
+
+  function renderCityList(){
+    cityList.innerHTML = Object.entries(spots).map(([id, s]) => {
+      const d = spotState[id] ? domains[s.answer] : null;
+      return `<li data-spot="${id}" class="${d ? 'done' : ''}"><span class="task-dot"></span>
+        ${s.list}${d ? ` &mdash; <strong>${d.name}</strong>` : ''}</li>`;
+    }).join('');
+    document.getElementById('cityCount').textContent = Object.values(spotState).filter(Boolean).length;
+  }
+
+  function openSpot(spotId){
+    const s = spots[spotId];
+    let html = `<button class="close-x" aria-label="Close">&times;</button>
+      <h3>${s.title}</h3>
+      <p class="modal-sub">${s.desc} Which domain is it?</p>
+      <div class="option-grid">`;
+    Object.entries(domains).forEach(([key, d]) => {
+      const right = key === s.answer;
+      html += `<div class="option-card" data-correct="${right}">
+        <span class="domain-swatch" style="background:${d.color}">${d.abbr}</span>
+        <div style="flex:1;">
+          <div class="opt-label">${d.name} <span style="font-weight:400; color:var(--ink-soft);">(${d.en})</span></div>
+          <div class="opt-def">${d.def}</div>
+          <div class="option-feedback">${right ? s.explain + ` <span class="source-tag">${s.source}</span>` : 'Not quite. ' + s.hint}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+    modalBody.innerHTML = html;
+    backdrop.classList.add('show');
+
+    modalBody.querySelector('.close-x').addEventListener('click', closeModal);
+    modalBody.querySelectorAll('.option-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const isCorrect = card.dataset.correct === "true";
+        card.parentElement.querySelectorAll('.option-card').forEach(c => c.classList.remove('correct','wrong'));
+        card.classList.add(isCorrect ? 'correct' : 'wrong');
+        if(isCorrect){
+          markSpotDone(spotId);
+          setTimeout(closeModal, 2200);
+        }
+      });
+    });
+  }
+
+  function paintSpot(spotId, d){
+    const g = document.querySelector(`.spot[data-spot="${spotId}"]`);
+    const circle = g.querySelector('.spot-marker');
+    const label = g.querySelector('.spot-q');
+    const cy = parseFloat(circle.getAttribute('cy'));
+    if(!label.dataset.y) label.dataset.y = label.getAttribute('y');
+    circle.setAttribute('fill', d ? d.color : '#fff');
+    circle.setAttribute('stroke', d ? d.color : '#b64a3a');
+    label.textContent = d ? d.abbr : '?';
+    label.setAttribute('fill', d ? '#fff' : '#b64a3a');
+    label.setAttribute('font-size', d ? 8.5 : (circle.getAttribute('r') > 10 ? 14 : 12));
+    label.setAttribute('y', d ? cy + 3 : label.dataset.y);
+  }
+
+  function markSpotDone(spotId){
+    spotState[spotId] = true;
+    paintSpot(spotId, domains[spots[spotId].answer]);
+    renderCityList();
+    if(Object.keys(spots).every(id => spotState[id])){
+      document.getElementById('cityWin').classList.add('show');
+      launchConfetti(document.getElementById('cityPanel'));
+    }
+  }
+
+  document.querySelectorAll('.spot').forEach(g => {
+    g.addEventListener('click', (e) => { e.stopPropagation(); openSpot(g.dataset.spot); });
+  });
+  document.getElementById('resetCity').addEventListener('click', () => {
+    Object.keys(spots).forEach(id => { spotState[id] = false; paintSpot(id, null); });
+    document.getElementById('cityWin').classList.remove('show');
+    renderCityList();
+  });
+  renderCityList();
+
+  /* ============================================================
+     City Meter: is Main Street a reshut harabbim?
+     ============================================================ */
+  const populations = [100000, 300000, 600000, 1000000, 2000000, 3000000, 5000000];
+  const meter = { width: 'wide', walls: 'open' };
+  const popRange = document.getElementById('popRange');
+
+  function opinionVerdicts(wide, pop, omed){
+    const narrow = { status: 'ok', text: "Under 16 amot, so it isn't a reshut harabbim at all.", src: "Hotzaah [5]" };
+    return [
+      {
+        who: "Mishkenot Yakov",
+        view: "No population of 600,000 is needed",
+        ...(wide
+          ? { status: 'rh', text: "A 16-amot street is a reshut harabbim no matter how many people live here, and a tzurat hapetach can't enclose it.", src: "Hotzaah [9–11]" }
+          : { status: 'warn', text: "Not a reshut harabbim by width, but he argues that traffic by all the townspeople can still nullify a tzurat hapetach.", src: "Hotzaah [17]" })
+      },
+      {
+        who: "Rashi (Rama, Magen Avraham, Taz, Bet Efraim)",
+        view: "A reshut harabbim needs 600,000 people",
+        ...(!wide ? narrow : pop >= 600000
+          ? { status: 'rh', text: "600,000 counted anywhere in the city makes every qualifying street a reshut harabbim, per most acharonim.", src: "Hotzaah [73]" }
+          : { status: 'ok', text: "Under 600,000, so not a reshut harabbim, and an eruv of tzurot hapetach is possible.", src: "Hotzaah [5]" })
+      },
+      {
+        who: "Rav Moshe Feinstein",
+        view: "Doesn't count people inside their homes",
+        ...(!wide ? narrow : pop >= 3000000
+          ? { status: 'rh', text: "About 3,000,000 within 12×12 mil makes it a reshut harabbim. This is why he rejected an eruv in Brooklyn.", src: "Hotzaah [72], [88]" }
+          : pop >= 600000
+          ? { status: 'warn', text: "Not a reshut harabbim by his count (he requires about 3,000,000), but he opposed eruvin in very large cities for other reasons.", src: "Hotzaah [32], [72]" }
+          : { status: 'ok', text: "Far below his 3,000,000 threshold, so not a reshut harabbim.", src: "Hotzaah [72]" })
+      },
+      {
+        who: "Chazon Ish",
+        view: "Omed merubeh walls can enclose a city",
+        ...(!wide ? narrow : omed
+          ? { status: 'ok', text: "Three omed merubeh walls make the city a reshut hayachid, so tzurot hapetach work. Rav Moshe, Rav Aharon Kotler and Rav Belsky reject this when the “walls” are rows of buildings.", src: "Hotzaah [30], [53–56]" }
+          : { status: 'rh', text: "He was strict and didn't rely on Rashi's 600,000, so without walls this street is a reshut harabbim.", src: "Hotzaah §600,000" })
+      }
+    ];
+  }
+
+  function updateMeter(){
+    const pop = populations[popRange.value];
+    document.getElementById('popLabel').textContent = pop.toLocaleString('en-US');
+    const rows = opinionVerdicts(meter.width === 'wide', pop, meter.walls === 'omed');
+    const pills = {
+      rh:   ['pasul', 'Reshut harabbim'],
+      ok:   ['kosher', 'Eruv possible'],
+      warn: ['dispute', 'Possible, with reservations']
+    };
+    document.getElementById('opinionList').innerHTML = rows.map(r => `
+      <li class="${r.status === 'warn' ? '' : r.status}">
+        <strong>${r.who}</strong>
+        <span style="color:var(--ink-soft); font-size:.8rem;">${r.view}</span><br>
+        <span class="verdict-pill ${pills[r.status][0]}">${pills[r.status][1]}</span>
+        <div>${r.text} <span class="source-tag">${r.src}</span></div>
+      </li>`).join('');
+    const rhCount = rows.filter(r => r.status === 'rh').length;
+    document.getElementById('meterSummary').textContent = rhCount === 0
+      ? "None of the four views call Main Street a reshut harabbim."
+      : `${rhCount} of 4 views call Main Street a reshut harabbim.`;
+  }
+
+  function bindToggle(id, key){
+    const pair = document.getElementById(id);
+    pair.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        pair.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        meter[key] = btn.dataset.val;
+        updateMeter();
+      });
+    });
+  }
+  bindToggle('widthToggle', 'width');
+  bindToggle('wallToggle', 'walls');
+  popRange.addEventListener('input', updateMeter);
+  updateMeter();
+
+  /* ============================================================
+     Real cities, real rulings
+     ============================================================ */
+  const cities = [
+    {
+      name: "Manhattan", mini: "Rav Moshe: no eruv", tone: "no",
+      detail: "Rav Moshe Feinstein objected to any eruv in Manhattan, both because of specific problems with its walls and because people would wrongly learn that an eruv can be made in a reshut harabbim. At first he accepted that others could disagree; after the 1962 Agudas Harabbanim convention ruled it forbidden, he wrote more forcefully that no one should make one.",
+      source: "Hotzaah [86–87]"
+    },
+    {
+      name: "Brooklyn", mini: "Rav Moshe: no eruv", tone: "no",
+      detail: "Rav Moshe rejected an eruv in Brooklyn because its population was close to 3,000,000, which in his view rules out relying on Rashi. Even without that, he held a city that big shouldn't have an eruv, lest people learn that one can be made in a reshut harabbim.",
+      source: "Hotzaah [88]"
+    },
+    {
+      name: "Kew Garden Hills, Queens", mini: "Rav Moshe: allowed", tone: "yes",
+      detail: "Rav Moshe allowed an eruv in Kew Garden Hills. He wrote only that it's a small town and that the eruv didn't include the highways. He doesn't explain why it wasn't a reshut harabbim, even though the population within 12×12 mil was similar to Brooklyn's.",
+      source: "Hotzaah [89–90]"
+    },
+    {
+      name: "Detroit", mini: "Rav Moshe: allowed", tone: "yes",
+      detail: "Rav Moshe allowed an eruv in Detroit: the whole city has fewer than 3 million people, and the area the eruv encloses is nowhere near 600,000, so no one would learn from it that big cities can have eruvin.",
+      source: "Hotzaah [92]"
+    },
+    {
+      name: "West Rogers Park, Chicago", mini: "Rav Wosner: allowed", tone: "yes",
+      detail: "Rav Ben Tzion Wosner allowed it mainly because rivers and train lines already formed three walls, so only some places needed tzurot hapetach. He also held that 600,000 is measured within the area the eruv encloses, and West Rogers Park has far fewer people.",
+      source: "Hotzaah [91]"
+    },
+    {
+      name: "Los Angeles", mini: "Disputed", tone: "mixed",
+      detail: "Rav Ovadia Yosef allowed an eruv in LA by combining leniencies: the Chazon Ish on omed merubeh, the Yeshuot Malko on cars and trains, and the Mishna Brurah's approach. He held that even Sephardim may rely on it. Rav Moshe didn't approve the first LA eruv because it relied on the Chazon Ish, but Rav Pinchos Gruman writes that Rav Moshe never forbade it.",
+      source: "Hotzaah [93–95]"
+    }
+  ];
+  const toneColor = { yes: ['#dcedda', '#3f7d53'], no: ['#f4ddd6', '#b64a3a'], mixed: ['#e8d6ad', '#b9892f'] };
+
+  const cityGrid = document.getElementById('cityGrid');
+  const cityDetail = document.getElementById('cityDetail');
+  cities.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'plot-card';
+    el.innerHTML = `
+      <svg class="plot-icon" viewBox="0 0 100 50"><rect width="100" height="50" rx="8" fill="${toneColor[c.tone][0]}"/></svg>
+      <h4>${c.name}</h4>
+      <div class="mini">${c.mini}</div>`;
+    el.addEventListener('click', () => {
+      cityDetail.innerHTML = `<h4>${c.name} &mdash; <span style="color:${toneColor[c.tone][1]}">${c.mini}</span></h4>
+        <p style="margin:0 0 6px;">${c.detail}</p>
+        <span class="source-tag">${c.source}</span>`;
+      cityDetail.classList.add('show');
+      cityDetail.scrollIntoView({behavior:'smooth', block:'nearest'});
+    });
+    cityGrid.appendChild(el);
+  });
 
   /* ============================================================
      DATA: Flashcard lab
@@ -952,7 +1417,7 @@
   /* ============================================================
      Step card highlight-on-scroll (ties hero steps to current section)
      ============================================================ */
-  const stepMap = { game: 2, slope: 2, lab: 2, karpef: 2 };
+  const stepMap = { city: 1, game: 2, slope: 2, lab: 2, karpef: 2 };
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if(entry.isIntersecting){
@@ -963,9 +1428,16 @@
       }
     });
   }, { threshold: 0.4 });
-  ['game','slope','lab','karpef'].forEach(id => {
+  ['city','game','slope','lab','karpef'].forEach(id => {
     const node = document.getElementById(id);
     if(node) observer.observe(node);
+  });
+
+  // step cards with a section jump there when clicked
+  document.querySelectorAll('.step-card[data-target]').forEach(card => {
+    card.addEventListener('click', () => {
+      document.getElementById(card.dataset.target).scrollIntoView({behavior:'smooth', block:'start'});
+    });
   });
 
 })();
