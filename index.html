@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Eruv Map</title>
+<style>
+  :root{
+    --cream:#faf6ec;
+    --cream-2:#f2ead9;
+    --ink:#2b2320;
+    --ink-soft:#5c5147;
+    --line:#ddd0b8;
+    --gold:#b9892f;
+    --gold-soft:#e8d6ad;
+    --green:#3f7d53;
+    --green-soft:#dcedda;
+    --red:#b64a3a;
+    --red-soft:#f4ddd6;
+    --blue:#3d6c8f;
+    --blue-soft:#dbe8ef;
+    --shadow: 0 6px 18px rgba(43,35,32,0.12);
+    --radius: 14px;
+    font-size: 17px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--cream);
+    color: var(--ink);
+    font-family: "Iowan Old Style","Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .hebrew{ font-family: "New Peninim MT","Arial Hebrew","Times New Roman", serif; }
+  img,svg{ max-width:100%; }
+  a{ color: var(--blue); }
+
+  .wrap{ max-width: 980px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------- Header / Hero ---------- */
+  header.hero{
+    background:
+      radial-gradient(1200px 500px at 15% -10%, #fff8ea 0%, transparent 60%),
+      linear-gradient(180deg, #fffaf0 0%, var(--cream) 100%);
+    border-bottom: 1px solid var(--line);
+    padding: 54px 0 36px;
+  }
+  .eyebrow{
+    display:inline-block;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    font-size: .74rem;
+    font-weight: 700;
+    color: var(--gold);
+    background: var(--gold-soft);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  h1.title{
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+  h1.title .hebrew{ color: var(--gold); font-size: 0.6em; margin-inline-start: 10px; }
+  .lede{
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0 0 20px;
+  }
+  .lede strong{ color: var(--ink); }
+
+  .steps-row{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .step-card{
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 14px 16px;
+    position: relative;
+    overflow:hidden;
+  }
+  .step-card .num{
+    position:absolute; top:10px; right:12px;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 800; font-size: 1.6rem; color: var(--gold-soft);
+  }
+  .step-card h3{ margin: 0 0 6px; font-size: 1rem; }
+  .step-card p{ margin:0; font-size: .88rem; color: var(--ink-soft); }
+  .step-card.active{ border-color: var(--gold); background: #fffdf6; }
+  .step-card.active .num{ color: var(--gold); }
+
+  @media (max-width: 760px){
+    .steps-row{ grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ---------- Section scaffolding ---------- */
+  section.block{ padding: 54px 0; border-bottom: 1px solid var(--line); }
+  section.block:last-of-type{ border-bottom: none; }
+  .section-head{ margin-bottom: 26px; }
+  .section-head .tag{
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; font-weight:700;
+    color: var(--blue);
+  }
+  .section-head h2{ margin: 6px 0 8px; font-size: 1.7rem; }
+  .section-head p{ color: var(--ink-soft); max-width: 68ch; margin: 0; }
+
+  /* ---------- Game: Build the Block ---------- */
+  .game-layout{ display:grid; grid-template-columns: 1.3fr 1fr; gap: 28px; align-items:start; }
+  @media (max-width: 820px){ .game-layout{ grid-template-columns: 1fr; } }
+
+  .map-card{
+    background:#fff; border:1px solid var(--line); border-radius: var(--radius);
+    padding: 18px; box-shadow: var(--shadow);
+  }
+  .map-card svg{ width:100%; height:auto; display:block; }
+
+  .gap-segment{ cursor:pointer; transition: opacity .15s ease; }
+  .gap-segment:hover{ opacity: .75; }
+  .wall-fixed{ opacity: 1; }
+
+  .progress-panel{
+    background:#fff; border:1px solid var(--line); border-radius: var(--radius);
+    padding: 20px;
+  }
+  .progress-panel h3{ margin-top:0; font-size: 1.05rem; }
+  .task-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .task-list li{
+    display:flex; align-items:center; gap:10px;
+    padding: 10px 12px; border-radius: 10px; background: var(--cream-2);
+    font-size: .92rem;
+  }
+  .task-list li.done{ background: var(--green-soft); }
+  .task-dot{
+    width: 20px; height:20px; border-radius:50%;
+    border: 2px solid var(--ink-soft); flex: 0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+    font-size: .7rem; color: #fff; background: transparent;
+  }
+  .task-list li.done .task-dot{ background: var(--green); border-color: var(--green); }
+  .task-list li.done .task-dot::after{ content:"✓"; }
+
+  .win-banner{
+    display:none; margin-top:16px; padding: 14px 16px; border-radius: 10px;
+    background: var(--green-soft); border:1px solid var(--green);
+    font-weight:600; color:#215032; position:relative; overflow:hidden;
+  }
+  .win-banner.show{ display:block; }
+
+  .btn{
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: .88rem; font-weight:600;
+    border: 1px solid var(--line); background:#fff; color: var(--ink);
+    padding: 9px 14px; border-radius: 8px; cursor:pointer;
+  }
+  .btn:hover{ border-color: var(--gold); color: var(--gold); }
+  .btn.primary{ background: var(--ink); color:#fff; border-color: var(--ink); }
+  .btn.primary:hover{ opacity:.88; color:#fff; }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    display:none; position: fixed; inset:0; background: rgba(43,35,32,.45);
+    align-items:center; justify-content:center; padding: 20px; z-index: 50;
+  }
+  .modal-backdrop.show{ display:flex; }
+  .modal{
+    background:#fffdf7; border-radius: 16px; max-width: 640px; width:100%;
+    max-height: 86vh; overflow-y:auto; padding: 26px 26px 22px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  }
+  .modal h3{ margin: 0 0 4px; font-size: 1.3rem; }
+  .modal .modal-sub{ color: var(--ink-soft); font-size: .92rem; margin-bottom: 18px; }
+  .close-x{
+    float:right; background:none; border:none; font-size:1.3rem; cursor:pointer; color: var(--ink-soft);
+    line-height:1;
+  }
+  .option-grid{ display:grid; gap: 12px; margin-top: 6px; }
+  .option-card{
+    border: 2px solid var(--line); border-radius: 12px; padding: 12px 14px;
+    cursor:pointer; display:flex; gap:12px; align-items:flex-start;
+    background:#fff;
+  }
+  .option-card:hover{ border-color: var(--gold); }
+  .option-card svg{ width: 70px; height:70px; flex:0 0 auto; }
+  .option-card .opt-label{ font-weight:600; font-size: .96rem; }
+  .option-feedback{
+    margin-top:6px; font-size: .88rem; border-radius: 8px; padding: 10px 12px; display:none;
+  }
+  .option-card.correct{ border-color: var(--green); background: var(--green-soft); }
+  .option-card.correct .option-feedback{ display:block; color:#1d4a2e; }
+  .option-card.wrong{ border-color: var(--red); background: var(--red-soft); }
+  .option-card.wrong .option-feedback{ display:block; color:#7a2e21; }
+  .source-tag{
+    display:inline-block; margin-top:4px; font-size: .74rem;
+    color: var(--ink-soft); background: var(--cream-2); border-radius:6px; padding: 1px 6px;
+  }
+
+  /* ---------- Flashcards lab ---------- */
+  .card-grid{
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr));
+    gap: 18px;
+  }
+  .flip-card{ perspective: 1200px; height: 230px; cursor:pointer; }
+  .flip-inner{
+    position:relative; width:100%; height:100%; transition: transform .5s;
+    transform-style: preserve-3d;
+  }
+  .flip-card.flipped .flip-inner{ transform: rotateY(180deg); }
+  .flip-face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    border-radius: var(--radius); padding: 16px; border:1px solid var(--line);
+    display:flex; flex-direction:column;
+  }
+  .flip-front{ background:#fff; }
+  .flip-back{ background: var(--cream-2); transform: rotateY(180deg); overflow-y:auto; }
+  .flip-face .kicker{ font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color: var(--blue); font-weight:700; }
+  .flip-face h4{ margin: 6px 0; font-size: 1.05rem; }
+  .flip-face .q{ color: var(--ink-soft); font-size:.9rem; margin-top:auto; }
+  .verdict-pill{
+    display:inline-block; font-size:.74rem; font-weight:700; border-radius:999px;
+    padding: 2px 10px; margin-bottom:8px; width: fit-content;
+  }
+  .verdict-pill.kosher{ background: var(--green-soft); color:#1d4a2e; }
+  .verdict-pill.pasul{ background: var(--red-soft); color:#7a2e21; }
+  .verdict-pill.dispute{ background: var(--gold-soft); color:#7a5a12; }
+  .flip-back p{ font-size: .88rem; margin: 0 0 8px; }
+  .tap-hint{ font-size:.72rem; color: var(--ink-soft); margin-top: 10px; text-align:center; }
+
+  /* ---------- Slope lab ---------- */
+  .slope-layout{ display:grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  @media (max-width: 760px){ .slope-layout{ grid-template-columns: 1fr; } }
+  .slope-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+  .control-row{ display:flex; align-items:center; gap: 12px; margin: 14px 0; flex-wrap: wrap; }
+  .control-row label{ font-size:.88rem; font-weight:600; }
+  input[type=range]{ flex:1; accent-color: var(--gold); min-width: 140px; }
+  .toggle-pair{ display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; }
+  .toggle-pair button{
+    border:none; background:#fff; padding: 7px 14px; font-size:.82rem; cursor:pointer;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .toggle-pair button.active{ background: var(--blue); color:#fff; }
+  .readout{ display:flex; gap: 18px; flex-wrap:wrap; margin-top:12px; }
+  .readout .stat{ background: var(--cream-2); border-radius:10px; padding:10px 14px; min-width:110px; }
+  .readout .stat .n{ font-size:1.3rem; font-weight:700; }
+  .readout .stat .l{ font-size:.72rem; color: var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; }
+  .verdict-box{
+    margin-top: 16px; padding: 12px 14px; border-radius: 10px; font-weight:600; font-size:.95rem;
+  }
+  .verdict-box.wall{ background: var(--green-soft); color:#1d4a2e; }
+  .verdict-box.noWall{ background: var(--red-soft); color:#7a2e21; }
+
+  /* ---------- Karpef section ---------- */
+  .plot-grid{
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 16px;
+  }
+  .plot-card{
+    background:#fff; border:1px solid var(--line); border-radius: var(--radius); padding: 14px;
+    cursor:pointer; transition: box-shadow .15s ease;
+  }
+  .plot-card:hover{ box-shadow: var(--shadow); }
+  .plot-icon{ width:100%; height:90px; border-radius:8px; margin-bottom:10px; }
+  .plot-card h4{ margin:0 0 4px; font-size: .96rem; }
+  .plot-card .mini{ font-size:.78rem; color: var(--ink-soft); }
+  .plot-detail{
+    margin-top: 22px; background: var(--cream-2); border-radius: var(--radius);
+    padding: 18px 20px; display:none;
+  }
+  .plot-detail.show{ display:block; }
+  .plot-detail h4{ margin:0 0 6px; }
+
+  /* ---------- Footer ---------- */
+  footer{ padding: 46px 0 70px; }
+  footer h3{ font-size:1.1rem; }
+  footer ul{ font-size:.9rem; color: var(--ink-soft); padding-left: 20px; }
+  .fine-print{
+    margin-top: 26px; padding: 16px 18px; border-left: 3px solid var(--gold);
+    background: var(--cream-2); font-size: .88rem; color: var(--ink-soft); border-radius: 0 10px 10px 0;
+  }
+
+  /* ---------- Confetti ---------- */
+  .confetti-piece{
+    position:absolute; top:-10px; width:8px; height:14px; opacity:.9;
+    animation: fall linear forwards;
+  }
+  @keyframes fall{
+    to{ transform: translateY(260px) rotate(360deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Based on Halachipedia · Eruvin</span>
+    <h1 class="title">Interactive Eruv Map <span class="hebrew">עירוב</span></h1>
+    <p class="lede">
+      An eruv lets a community carry outside on Shabbat by halachically enclosing the
+      neighborhood. <strong>Build one yourself</strong> &mdash; place the walls, judge the
+      tricky pole-and-wire cases, and explore the geometry of a slope &mdash; all drawn from
+      the sources collected on
+      <a href="https://halachipedia.com/index.php?title=Eruvin" target="_blank" rel="noopener">Halachipedia&rsquo;s Eruvin article</a>.
+    </p>
+
+    <div class="steps-row" id="stepsRow">
+      <div class="step-card" data-step="1">
+        <span class="num">1</span>
+        <h3>Check the City</h3>
+        <p>Make sure the area isn&rsquo;t a <em>reshut harabbim</em> &mdash; population, streets, and walls all matter.</p>
+      </div>
+      <div class="step-card active" data-step="2">
+        <span class="num">2</span>
+        <h3>Build the Walls</h3>
+        <p>Buildings, fences, and <em>tzurot hapetach</em> close every gap. <strong>This is the game below.</strong></p>
+      </div>
+      <div class="step-card" data-step="3">
+        <span class="num">3</span>
+        <h3>Rent the Reshut</h3>
+        <p><em>Shechirut reshut</em> &mdash; renting the public areas from the municipality or police.</p>
+      </div>
+      <div class="step-card" data-step="4">
+        <span class="num">4</span>
+        <h3>Share the Bread</h3>
+        <p>An <em>eruv chatzerot</em>: a box of bread or matzah held in common by the community.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= GAME: BUILD THE BLOCK ================= -->
+<section class="block" id="game">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Step 2 &middot; Hands-on</span>
+      <h2>Build the Block</h2>
+      <p>
+        This block already has solid walls on two sides &mdash; buildings count as a halachic
+        wall automatically. The other two sides are open. Click each dashed gap and choose the
+        construction that gives you a kosher <em>tzurat hapetach</em> (a two-post &ldquo;doorframe&rdquo;
+        with a wire lintel on top).
+      </p>
+    </div>
+
+    <div class="game-layout">
+      <div class="map-card">
+        <svg viewBox="0 0 520 380" id="mapSvg">
+          <!-- block interior -->
+          <rect x="60" y="50" width="400" height="280" fill="#f6efe0" stroke="none"/>
+
+          <!-- NORTH: fixed building wall -->
+          <g class="wall-fixed" data-wall="north">
+            <rect x="60" y="40" width="400" height="18" fill="#a9876a"/>
+            <text x="260" y="33" text-anchor="middle" font-size="13" font-family="Georgia, serif" fill="#5c5147">Row of buildings &mdash; already a wall</text>
+          </g>
+
+          <!-- EAST: fixed fence wall -->
+          <g class="wall-fixed" data-wall="east">
+            <rect x="452" y="50" width="16" height="280" fill="#8a9a7c"/>
+            <text x="490" y="190" text-anchor="middle" font-size="12" font-family="Georgia, serif" fill="#5c5147" transform="rotate(90 490 190)">Fence line &mdash; already a wall</text>
+          </g>
+
+          <!-- SOUTH: gap 1 (swaying wire challenge) -->
+          <g class="gap-segment" data-gap="sway">
+            <line x1="60" y1="330" x2="460" y2="330" stroke="#b64a3a" stroke-width="5" stroke-dasharray="10 8"/>
+            <circle cx="260" cy="330" r="17" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
+            <text x="260" y="335" text-anchor="middle" font-size="15" fill="#b64a3a">?</text>
+            <text x="260" y="356" text-anchor="middle" font-size="12.5" font-family="Georgia, serif" fill="#5c5147">South side &mdash; open gap</text>
+          </g>
+
+          <!-- WEST: gap 2 (wire-into-pole challenge) -->
+          <g class="gap-segment" data-gap="wire">
+            <line x1="60" y1="50" x2="60" y2="330" stroke="#b64a3a" stroke-width="5" stroke-dasharray="10 8"/>
+            <circle cx="60" cy="190" r="17" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
+            <text x="60" y="195" text-anchor="middle" font-size="15" fill="#b64a3a">?</text>
+            <text x="30" y="190" text-anchor="middle" font-size="12.5" font-family="Georgia, serif" fill="#5c5147" transform="rotate(-90 30 190)">West side &mdash; open gap</text>
+          </g>
+
+          <!-- a third challenge sits across the driveway cut into the north wall -->
+          <g class="gap-segment" data-gap="detach">
+            <rect x="200" y="40" width="60" height="18" fill="#f6efe0"/>
+            <line x1="200" y1="49" x2="260" y2="49" stroke="#b64a3a" stroke-width="5" stroke-dasharray="8 6"/>
+            <circle cx="230" cy="49" r="14" fill="#fff" stroke="#b64a3a" stroke-width="2"/>
+            <text x="230" y="53" text-anchor="middle" font-size="13" fill="#b64a3a">?</text>
+          </g>
+          <text x="230" y="25" text-anchor="middle" font-size="11.5" font-family="Georgia, serif" fill="#5c5147">Driveway cut in the wall</text>
+        </svg>
+      </div>
+
+      <div class="progress-panel">
+        <h3>Your eruv checklist</h3>
+        <ul class="task-list" id="taskList">
+          <li data-task="sway"><span class="task-dot"></span> Close the south gap (swaying wire)</li>
+          <li data-task="wire"><span class="task-dot"></span> Close the west gap (wire &amp; pole)</li>
+          <li data-task="detach"><span class="task-dot"></span> Close the driveway gap (detached post)</li>
+        </ul>
+        <div class="win-banner" id="winBanner">
+          🎉 The loop is sealed &mdash; according to this game&rsquo;s choices, you&rsquo;ve built a kosher set of
+          halachic walls! In real life you&rsquo;d still need steps 1, 3 &amp; 4 above (and a rabbi&rsquo;s review)
+          before anyone actually carries.
+        </div>
+        <div style="margin-top:14px;">
+          <button class="btn" id="resetGame">Reset map</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MODAL ================= -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<!-- ================= TZURAT HAPETACH LAB ================= -->
+<section class="block" id="lab">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Flashcard Lab</span>
+      <h2>Kosher or Pasul?</h2>
+      <p>
+        Halachipedia catalogs a long list of edge cases for a <em>tzurat hapetach</em>. Guess
+        before you flip &mdash; most have real machloket (disagreement) among the poskim, so the
+        back of each card gives the leading view, not the only one.
+      </p>
+    </div>
+    <div class="card-grid" id="cardGrid"></div>
+  </div>
+</section>
+
+<!-- ================= SLOPE LAB ================= -->
+<section class="block" id="slope">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Geometry Lab</span>
+      <h2>When Is a Slope a Wall?</h2>
+      <p>
+        A natural slope counts as a halachic wall when it climbs <strong>10 tefachim within 4
+        amot</strong>. Drag the slider to change the horizontal distance and watch the angle
+        &mdash; and the verdict &mdash; change.
+      </p>
+    </div>
+    <div class="slope-layout">
+      <div class="slope-card">
+        <svg viewBox="0 0 300 200" id="slopeSvg">
+          <line x1="20" y1="180" x2="280" y2="180" stroke="#ddd0b8" stroke-width="2"/>
+          <polygon id="slopeTriangle" points="20,180 280,180 280,70" fill="#dbe8ef" stroke="#3d6c8f" stroke-width="2"/>
+          <line x1="280" y1="70" x2="280" y2="180" stroke="#3d6c8f" stroke-width="2" stroke-dasharray="4 4"/>
+          <text x="290" y="130" font-size="11" fill="#5c5147" transform="rotate(90 290 130)">10 tefachim</text>
+          <text id="slopeAngleLabel" x="55" y="170" font-size="13" fill="#2b2320" font-weight="700">24.6&deg;</text>
+        </svg>
+        <div class="control-row">
+          <label for="slopeRange">Distance</label>
+          <input type="range" id="slopeRange" min="12" max="40" step="1" value="24">
+          <span id="slopeAmotLabel" style="font-size:.85rem; font-weight:600;">4.0 amot</span>
+        </div>
+        <div class="control-row">
+          <span style="font-size:.85rem; font-weight:600;">Measured along:</span>
+          <div class="toggle-pair" id="measureToggle">
+            <button data-mode="slope" class="active">the slope (majority)</button>
+            <button data-mode="ground">the ground (minority)</button>
+          </div>
+        </div>
+        <div class="readout">
+          <div class="stat"><div class="n" id="statAngle">24.6&deg;</div><div class="l">Angle</div></div>
+          <div class="stat"><div class="n" id="statGround">21.9</div><div class="l">Tefachim (ground)</div></div>
+        </div>
+        <div class="verdict-box wall" id="slopeVerdict">This counts as a wall &mdash; it rises 10 tefachim within 4 amot.</div>
+      </div>
+      <div class="slope-card">
+        <h4>Why it matters</h4>
+        <p>A slope that reaches 10 tefachim of height within 4 amot of distance encloses the area
+          above it as a <em>reshut hayachid</em>, same as a built wall. The top of the slope is
+          treated as the wall &mdash; not the bottom. <span class="source-tag">[28&ndash;33]</span></p>
+        <p>Poskim disagree about <strong>how</strong> that 4-amot distance is measured. The
+          majority (Rabbenu Chananel, Ritva, Mishna Brurah, Aruch Hashulchan) measure along the
+          slope itself, giving an angle of 24.6&deg;. A minority (Tosfot on Zevachim) measure along
+          the flat ground below, giving a gentler 22.6&deg;. <span class="source-tag">[30]</span></p>
+        <p>Make the distance more gradual than the threshold (try sliding past 4 amot) and the
+          slope stops counting as a wall at all &mdash; per Rashi, it&rsquo;s just ground people can
+          walk over. <span class="source-tag">[32]</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KARPEF ================= -->
+<section class="block" id="karpef">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Explore</span>
+      <h2>Karpef: When a Fenced Area Still Isn&rsquo;t &ldquo;Home&rdquo;</h2>
+      <p>
+        Even inside valid walls, the Rabbis forbade carrying more than 4 amot in any area larger
+        than <strong>5000 square amot</strong> that isn&rsquo;t &ldquo;fit for dwelling.&rdquo; Click a plot to see
+        how it&rsquo;s classified &mdash; and why that classification can matter for an entire eruv, not
+        just that one plot.
+      </p>
+    </div>
+    <div class="plot-grid" id="plotGrid"></div>
+    <div class="plot-detail" id="plotDetail"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h3>Sources &amp; further reading</h3>
+    <ul>
+      <li><a href="https://halachipedia.com/index.php?title=Eruvin" target="_blank" rel="noopener">Eruvin &ndash; Halachipedia</a> (primary source for every scenario on this page; footnote numbers in brackets match that article&rsquo;s source list)</li>
+      <li><a href="https://halachipedia.com/index.php?title=Introduction_to_the_Modern_Eruv" target="_blank" rel="noopener">Introduction to the Modern Eruv</a> &ndash; Rav Hershel Schachter</li>
+      <li><a href="https://halachipedia.com/index.php?title=Eruv_Chatzerot" target="_blank" rel="noopener">Eruv Chatzerot</a></li>
+      <li><a href="https://halachipedia.com/index.php?title=Hotzah" target="_blank" rel="noopener">Hotzaah</a> (reshut harabbim background, Step 1)</li>
+    </ul>
+    <div class="fine-print">
+      This page is a learning game, not a halachic ruling and not a map of any real eruv.
+      Several of the scenarios above are genuine machloket among the poskim, simplified here to
+      a single &ldquo;correct&rdquo; answer for playability &mdash; the flashcards and option explanations
+      note where that&rsquo;s the case. Whether you may carry in any actual neighborhood depends on
+      that community&rsquo;s eruv committee and your own rav.
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     DATA: Build-the-Block challenges
+     ============================================================ */
+  const gapData = {
+    sway: {
+      title: "South Gap: Swaying Wire",
+      sub: "The wire lintel of a tzurat hapetach sits in an open, windy stretch. Which setup is kosher?",
+      options: [
+        {
+          label: "Taut wire that may sway slightly but never leaves the top of the side posts",
+          correct: true,
+          explain: "Many poskim (Machasit Hashekel, Mishna Brurah, Chazon Ish, Igrot Moshe) hold the wire on top may sway a bit in the wind, as long as it doesn't fall off the poles.",
+          source: "[12]"
+        },
+        {
+          label: "Wire that swings out sideways, past the width of the two poles",
+          correct: false,
+          explain: "If the wire sways beyond the side posts, most poskim who discuss this case (Mishkenot Yakov, Chazon Ish, Netivot Shabbat) invalidate it.",
+          source: "[13]"
+        },
+        {
+          label: "Side posts themselves sway in the wind",
+          correct: false,
+          explain: "If the poles sway, the tzurat hapetach is invalid outright — a wall has to actually stand still.",
+          source: "[11]"
+        }
+      ]
+    },
+    wire: {
+      title: "West Gap: Wire Into the Pole",
+      sub: "The wire needs to attach to the top of each pole. Which attachment keeps the tzurat hapetach kosher?",
+      options: [
+        {
+          label: "Wire rests flush with notched protrusions cut into the top of the pole",
+          correct: true,
+          explain: "When the wire sits flush with side protrusions (rather than below them), many poskim — Pri Megadim, Aruch Hashulchan, Tikkun Eruvin — are lenient.",
+          source: "[21]"
+        },
+        {
+          label: "Wire is threaded straight into a hole in the side of the pole, well below the top",
+          correct: false,
+          explain: "If the wire goes into the side rather than over the top, many poskim invalidate it, since a lintel has to sit over the wall — not pierce it.",
+          source: "[18]"
+        },
+        {
+          label: "Wire sits in a notch, but protrusions on either side stick up higher than the wire",
+          correct: false,
+          explain: "When the protrusions rise above the wire itself, many poskim (Pri Megadim, Tosefet Shabbat, Kaf Hachaim) are strict and invalidate it.",
+          source: "[20]"
+        }
+      ]
+    },
+    detach: {
+      title: "Driveway Gap: Detached From the Wall",
+      sub: "The building wall has a driveway cut into it. How should the tzurat hapetach relate to the stub walls on either side?",
+      options: [
+        {
+          label: "Attach the pole directly to the stub of the building wall",
+          correct: true,
+          explain: "A tzurat hapetach connected to the existing wall is uncontroversially valid — this is the simplest, most reliable option.",
+          source: "[16]"
+        },
+        {
+          label: "Leave the pole floating more than 3 tefachim from the wall on both sides",
+          correct: false,
+          explain: "Tevuot Shor and others compare a detached tzurat hapetach to a lechi, which is invalid more than 3 tefachim from a wall on both sides; this is a real dispute, but the stricter view is widely followed (Mishna Brurah).",
+          source: "[16]"
+        },
+        {
+          label: "Build the pole 10 tefachim into the open field, away from any wall at all",
+          correct: false,
+          explain: "With no wall connection at all, this is the weakest version of the detached-tzurat-hapetach dispute — lean on the stricter opinions here.",
+          source: "[16]"
+        }
+      ]
+    }
+  };
+
+  const gapState = { sway: false, wire: false, detach: false };
+
+  /* ============================================================
+     Tiny SVG icon factory for the option cards
+     ============================================================ */
+  function poleIcon(kind){
+    const svgs = {
+      straight: `<svg viewBox="0 0 70 70"><rect x="12" y="20" width="8" height="40" fill="#a9876a"/><rect x="50" y="20" width="8" height="40" fill="#a9876a"/><line x1="16" y1="20" x2="54" y2="20" stroke="#3d6c8f" stroke-width="3"/></svg>`,
+      swayOut: `<svg viewBox="0 0 70 70"><rect x="12" y="20" width="8" height="40" fill="#a9876a"/><rect x="50" y="20" width="8" height="40" fill="#a9876a"/><path d="M16 20 Q35 5 64 24" fill="none" stroke="#b64a3a" stroke-width="3"/></svg>`,
+      wobble: `<svg viewBox="0 0 70 70"><rect x="12" y="20" width="8" height="40" fill="#a9876a" transform="rotate(10 16 60)"/><rect x="50" y="20" width="8" height="40" fill="#a9876a" transform="rotate(-8 54 60)"/><line x1="18" y1="22" x2="52" y2="22" stroke="#3d6c8f" stroke-width="3"/></svg>`,
+      flush: `<svg viewBox="0 0 70 70"><rect x="12" y="24" width="8" height="36" fill="#a9876a"/><rect x="50" y="24" width="8" height="36" fill="#a9876a"/><rect x="10" y="18" width="4" height="8" fill="#a9876a"/><rect x="56" y="18" width="4" height="8" fill="#a9876a"/><line x1="16" y1="20" x2="54" y2="20" stroke="#3d6c8f" stroke-width="3"/></svg>`,
+      side: `<svg viewBox="0 0 70 70"><rect x="12" y="24" width="8" height="36" fill="#a9876a"/><rect x="50" y="24" width="8" height="36" fill="#a9876a"/><line x1="16" y1="32" x2="54" y2="32" stroke="#b64a3a" stroke-width="3"/></svg>`,
+      protrude: `<svg viewBox="0 0 70 70"><rect x="12" y="24" width="8" height="36" fill="#a9876a"/><rect x="50" y="24" width="8" height="36" fill="#a9876a"/><rect x="10" y="14" width="4" height="10" fill="#a9876a"/><rect x="56" y="14" width="4" height="10" fill="#a9876a"/><line x1="16" y1="26" x2="54" y2="26" stroke="#b64a3a" stroke-width="3"/></svg>`,
+      attached: `<svg viewBox="0 0 70 70"><rect x="2" y="14" width="10" height="46" fill="#8a9a7c"/><rect x="12" y="20" width="7" height="40" fill="#a9876a"/><rect x="50" y="20" width="7" height="40" fill="#a9876a"/><line x1="15" y1="20" x2="53" y2="20" stroke="#3d6c8f" stroke-width="3"/></svg>`,
+      floatBoth: `<svg viewBox="0 0 70 70"><rect x="2" y="14" width="8" height="46" fill="#8a9a7c"/><rect x="24" y="20" width="7" height="40" fill="#a9876a"/><rect x="50" y="20" width="7" height="40" fill="#a9876a"/><line x1="27" y1="20" x2="53" y2="20" stroke="#b64a3a" stroke-width="3"/><rect x="60" y="14" width="8" height="46" fill="#8a9a7c"/></svg>`,
+      floatFar: `<svg viewBox="0 0 70 70"><rect x="2" y="14" width="8" height="46" fill="#8a9a7c"/><rect x="34" y="24" width="6" height="36" fill="#a9876a"/><rect x="58" y="24" width="6" height="36" fill="#a9876a" opacity=".3"/><line x1="37" y1="26" x2="61" y2="26" stroke="#b64a3a" stroke-width="3" stroke-dasharray="3 3"/></svg>`
+    };
+    return svgs[kind] || svgs.straight;
+  }
+  const iconMap = {
+    sway: ["straight","swayOut","wobble"],
+    wire: ["flush","side","protrude"],
+    detach: ["attached","floatBoth","floatFar"]
+  };
+
+  /* ============================================================
+     Modal logic for the Build-the-Block game
+     ============================================================ */
+  const backdrop = document.getElementById('modalBackdrop');
+  const modalBody = document.getElementById('modalBody');
+
+  function openGap(gapId){
+    const data = gapData[gapId];
+    if(!data) return;
+    const icons = iconMap[gapId];
+    let html = `<button class="close-x" aria-label="Close">&times;</button>
+      <h3>${data.title}</h3>
+      <p class="modal-sub">${data.sub}</p>
+      <div class="option-grid">`;
+    data.options.forEach((opt, i) => {
+      html += `<div class="option-card" data-correct="${opt.correct}" data-gap="${gapId}" data-index="${i}">
+        ${poleIcon(icons[i])}
+        <div style="flex:1;">
+          <div class="opt-label">${opt.label}</div>
+          <span class="source-tag">${opt.source}</span>
+          <div class="option-feedback">${opt.explain}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+    modalBody.innerHTML = html;
+    backdrop.classList.add('show');
+
+    modalBody.querySelector('.close-x').addEventListener('click', closeModal);
+    modalBody.querySelectorAll('.option-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const isCorrect = card.dataset.correct === "true";
+        // reset siblings' strong state but keep their feedback visible once chosen
+        card.parentElement.querySelectorAll('.option-card').forEach(c => c.classList.remove('correct','wrong'));
+        card.classList.add(isCorrect ? 'correct' : 'wrong');
+        card.querySelector('.option-feedback').style.display = 'block';
+        if(isCorrect){
+          markGapDone(gapId);
+          setTimeout(closeModal, 1100);
+        }
+      });
+    });
+  }
+  function closeModal(){
+    backdrop.classList.remove('show');
+    modalBody.innerHTML = '';
+  }
+  backdrop.addEventListener('click', (e) => { if(e.target === backdrop) closeModal(); });
+
+  document.querySelectorAll('.gap-segment').forEach(seg => {
+    seg.addEventListener('click', () => openGap(seg.dataset.gap));
+  });
+
+  /* ============================================================
+     Progress / win state
+     ============================================================ */
+  function markGapDone(gapId){
+    gapState[gapId] = true;
+    const li = document.querySelector(`.task-list li[data-task="${gapId}"]`);
+    if(li) li.classList.add('done');
+    const seg = document.querySelector(`.gap-segment[data-gap="${gapId}"]`);
+    if(seg){
+      seg.querySelectorAll('line').forEach(l => { l.setAttribute('stroke', '#3f7d53'); l.removeAttribute('stroke-dasharray'); });
+      seg.querySelectorAll('circle').forEach(c => c.setAttribute('stroke', '#3f7d53'));
+      seg.querySelectorAll('text').forEach(t => { if(t.textContent === '?'){ t.textContent = '✓'; t.setAttribute('fill','#3f7d53'); } });
+    }
+    checkWin();
+  }
+  function checkWin(){
+    if(Object.values(gapState).every(Boolean)){
+      const banner = document.getElementById('winBanner');
+      banner.classList.add('show');
+      launchConfetti();
+    }
+  }
+  function resetGame(){
+    Object.keys(gapState).forEach(k => gapState[k] = false);
+    document.querySelectorAll('.task-list li').forEach(li => li.classList.remove('done'));
+    document.getElementById('winBanner').classList.remove('show');
+    document.querySelectorAll('.gap-segment').forEach(seg => {
+      seg.querySelectorAll('line').forEach(l => { l.setAttribute('stroke', '#b64a3a'); l.setAttribute('stroke-dasharray','10 8'); });
+      seg.querySelectorAll('circle').forEach(c => c.setAttribute('stroke', '#b64a3a'));
+      seg.querySelectorAll('text').forEach(t => { if(t.textContent === '✓'){ t.textContent = '?'; t.setAttribute('fill','#b64a3a'); } });
+    });
+  }
+  document.getElementById('resetGame').addEventListener('click', resetGame);
+
+  function launchConfetti(){
+    const colors = ['#b9892f','#3f7d53','#3d6c8f','#b64a3a'];
+    const host = document.querySelector('.progress-panel');
+    host.style.position = 'relative';
+    for(let i=0;i<40;i++){
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random()*100 + '%';
+      piece.style.background = colors[i % colors.length];
+      piece.style.animationDuration = (1.2 + Math.random()*1.2) + 's';
+      piece.style.animationDelay = (Math.random()*0.4) + 's';
+      host.appendChild(piece);
+      setTimeout(() => piece.remove(), 3000);
+    }
+  }
+
+  /* ============================================================
+     DATA: Flashcard lab
+     ============================================================ */
+  const flashcards = [
+    {
+      title: "Doorpost Behind a Wall",
+      q: "One side post sits inside a four-walled area, hidden from view. Kosher?",
+      verdict: "pasul",
+      verdictLabel: "Mostly Pasul",
+      back: "Most poskim follow the Netivot (Tikkun Eruvin): a post hidden inside another enclosure isn't recognizable as a doorway, and the reshut hayachid is already “full,” so the hidden post doesn't count. A minority is lenient if only one wall blocks it.",
+      source: "[8–9]"
+    },
+    {
+      title: "Uneven Doorposts",
+      q: "One side post is noticeably wider or taller than the other. Kosher?",
+      verdict: "kosher",
+      verdictLabel: "Kosher",
+      back: "Fine — the two posts of a tzurat hapetach don't need to match in width or height. (Mayim Amukim, Magen Avraham, Tosefet Shabbat)",
+      source: "[10]"
+    },
+    {
+      title: "Skipping Poles",
+      q: "A wire runs past an extra pole in a straight line, rather than stopping at every pole along the row. Kosher?",
+      verdict: "dispute",
+      verdictLabel: "Disputed — Lean Lenient",
+      back: "Some poskim (Har Tzvi) allow it as long as the whole wire stays in one straight line over kosher side posts, even though it technically passes the side of an intermediate pole.",
+      source: "[15]"
+    },
+    {
+      title: "Sagging Wire",
+      q: "The wire lintel dips in the middle instead of running flat. Kosher?",
+      verdict: "dispute",
+      verdictLabel: "Genuinely Disputed",
+      back: "Mishkenot Yakov and (per his reading) Ritva invalidate a sagging lintel — a kosher tzurat hapetach needs a flat top. The Shaarei Tzion argues a curved wire is fine, reading the Gemara differently. No clean consensus here.",
+      source: "[14]"
+    },
+    {
+      title: "Pole Blocking the Opening",
+      q: "A horizontal pole (like a railing) crosses straight through the middle of the tzurat hapetach. Kosher?",
+      verdict: "dispute",
+      verdictLabel: "Disputed",
+      back: "Teshurat Shay says this isn't how people normally build doorways, so it's invalid. The Maharil and Avnei Nezer disagree — the tzurat hapetach itself is built correctly, so an extra crossbar can just be ignored.",
+      source: "[23–24]"
+    },
+    {
+      title: "Slanted Pole, Wire on Top",
+      q: "One pole leans at an angle, but the wire still rests on its top. Kosher?",
+      verdict: "kosher",
+      verdictLabel: "Kosher",
+      back: "Many poskim (Chazon Ish, Avnei Nezer) accept a slanted pole as long as the wire sits over its top, the normal way a lintel sits on a post.",
+      source: "[26]"
+    },
+    {
+      title: "Slanted Pole, Wire on the Side",
+      q: "The pole leans, and the wire catches its side rather than its top — but if you imagine cutting the pole right at the wire, the remaining stub is still 10 tefachim tall. Kosher?",
+      verdict: "pasul",
+      verdictLabel: "Mostly Pasul",
+      back: "Many poskim invalidate this, since the wire isn't sitting over the top the way a lintel should. If there's an actual notch cut at that height, it's a different (and valid) case.",
+      source: "[27]"
+    }
+  ];
+
+  const cardGrid = document.getElementById('cardGrid');
+  flashcards.forEach((card, idx) => {
+    const el = document.createElement('div');
+    el.className = 'flip-card';
+    el.innerHTML = `
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <span class="kicker">Case ${idx+1}</span>
+          <h4>${card.title}</h4>
+          <p class="q">${card.q}</p>
+        </div>
+        <div class="flip-face flip-back">
+          <span class="verdict-pill ${card.verdict}">${card.verdictLabel}</span>
+          <p>${card.back}</p>
+          <span class="source-tag">${card.source}</span>
+        </div>
+      </div>
+      <div class="tap-hint">Tap to flip</div>`;
+    el.addEventListener('click', () => el.classList.toggle('flipped'));
+    cardGrid.appendChild(el);
+  });
+
+  /* ============================================================
+     Slope geometry lab
+     ============================================================ */
+  const slopeRange = document.getElementById('slopeRange');
+  const measureToggle = document.getElementById('measureToggle');
+  let measureMode = 'slope'; // 'slope' = along hypotenuse (majority), 'ground' = along floor (minority)
+  const RISE = 10; // tefachim, fixed
+
+  function updateSlope(){
+    const d = parseFloat(slopeRange.value); // tefachim, the slider's distance
+    const amot = (d/6).toFixed(1);
+    let angleDeg, groundTefachim, hyp;
+    if(measureMode === 'slope'){
+      hyp = d;
+      angleDeg = Math.asin(RISE/hyp) * 180/Math.PI;
+      groundTefachim = Math.sqrt(Math.max(hyp*hyp - RISE*RISE,0));
+    } else {
+      groundTefachim = d;
+      angleDeg = Math.atan(RISE/groundTefachim) * 180/Math.PI;
+      hyp = Math.sqrt(groundTefachim*groundTefachim + RISE*RISE);
+    }
+    document.getElementById('slopeAmotLabel').textContent = amot + ' amot';
+    document.getElementById('statAngle').textContent = angleDeg.toFixed(1) + '°';
+    document.getElementById('statGround').textContent = groundTefachim.toFixed(1);
+    document.getElementById('slopeAngleLabel').textContent = angleDeg.toFixed(1) + '°';
+
+    const isWall = d <= 24; // 4 amot = 24 tefachim, in the unit the slider/mode is measuring
+    const verdictBox = document.getElementById('slopeVerdict');
+    if(isWall){
+      verdictBox.className = 'verdict-box wall';
+      verdictBox.textContent = 'This counts as a wall — it rises 10 tefachim within 4 amot (measured ' + (measureMode === 'slope' ? 'along the slope' : 'along the ground') + ').';
+    } else {
+      verdictBox.className = 'verdict-box noWall';
+      verdictBox.textContent = 'Too gradual — beyond 4 amot, Rashi treats this as ordinary ground people can simply walk over, not a wall.';
+    }
+
+    // redraw the triangle, scaled to fit the viewbox
+    const baseLen = Math.min(groundTefachim, 60) * 4; // visual scale, clamp so very long slopes don't blow out the SVG
+    const x0 = 20, yBase = 180, height = 110;
+    const x1 = x0 + Math.max(baseLen, 30) + 230 - Math.max(baseLen,30)*0; // keep simple: fixed-width triangle, angle shown via label only when distance is extreme
+    const topX = 280;
+    document.getElementById('slopeTriangle').setAttribute('points', `${x0},${yBase} ${topX},${yBase} ${topX},${yBase-height}`);
+  }
+  slopeRange.addEventListener('input', updateSlope);
+  measureToggle.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      measureToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      measureMode = btn.dataset.mode;
+      updateSlope();
+    });
+  });
+  updateSlope();
+
+  /* ============================================================
+     Karpef / garden explorer
+     ============================================================ */
+  const plots = [
+    {
+      name: "Backyard Patio",
+      mini: "Small yard opened off a house",
+      verdict: "Not a karpef",
+      color: "#dcedda",
+      detail: "A yard that opens directly off a house, used in connection with the house, counts as “fit for dwelling” regardless of size — it's not a karpef, and carrying anywhere in it is fine.",
+      source: "[46]"
+    },
+    {
+      name: "Empty Field (6000 sq. amot)",
+      mini: "Fenced, but never built on",
+      verdict: "Karpef",
+      color: "#f4ddd6",
+      detail: "An enclosed area larger than 5000 square amot that was never set up for dwelling is a classic karpef: biblically a reshut hayachid, but the Rabbis forbade carrying more than 4 amot inside it.",
+      source: "[44–45]"
+    },
+    {
+      name: "City Flower Garden",
+      mini: "Planted for beauty, inside the eruv",
+      verdict: "Disputed",
+      color: "#e8d6ad",
+      detail: "Many poskim hold flowers planted purely for beauty aren't a karpef, since they exist to enhance the surrounding living space. Others count ornamental plants the same as any garden.",
+      source: "[50–51]"
+    },
+    {
+      name: "Vegetable Garden (> 5000 sq. amot)",
+      mini: "Planted area inside the city",
+      verdict: "Disputed, lean lenient in a city",
+      color: "#e8d6ad",
+      detail: "A planted area this large would normally forbid carrying in the whole eruv. Some poskim (Dvar Shmuel) are lenient for city gardens specifically, since a small planted patch doesn't erase a whole city's “dwelling” status — but this is debated.",
+      source: "[48–49]"
+    },
+    {
+      name: "Shaded Grove of Trees",
+      mini: "Formerly a dwelling yard, now wooded",
+      verdict: "Not a karpef",
+      color: "#dcedda",
+      detail: "Unlike plants, trees don't ruin a yard's dwelling status — people like walking in their shade, so an area enclosed for dwelling stays that way even after it fills with trees.",
+      source: "[54]"
+    },
+    {
+      name: "Deep Pond",
+      mini: "10+ tefachim deep, non-drinking water",
+      verdict: "Karpef",
+      color: "#f4ddd6",
+      detail: "Water 10 tefachim deep removes an area's “fit for dwelling” status (unless it's drinkable) — so a yard that fills with a deep pond reverts to karpef rules.",
+      source: "[56]"
+    }
+  ];
+
+  const plotGrid = document.getElementById('plotGrid');
+  const plotDetail = document.getElementById('plotDetail');
+  plots.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'plot-card';
+    el.innerHTML = `
+      <svg class="plot-icon" viewBox="0 0 100 50"><rect width="100" height="50" rx="8" fill="${p.color.trim()}"/></svg>
+      <h4>${p.name}</h4>
+      <div class="mini">${p.mini}</div>`;
+    el.addEventListener('click', () => {
+      plotDetail.innerHTML = `<h4>${p.name} &mdash; <span style="color:${p.verdict.includes('Not') ? '#3f7d53' : (p.verdict==='Karpef' ? '#b64a3a':'#b9892f')}">${p.verdict}</span></h4>
+        <p style="margin:0 0 6px;">${p.detail}</p>
+        <span class="source-tag">${p.source}</span>`;
+      plotDetail.classList.add('show');
+      plotDetail.scrollIntoView({behavior:'smooth', block:'nearest'});
+    });
+    plotGrid.appendChild(el);
+  });
+
+  /* ============================================================
+     Step card highlight-on-scroll (ties hero steps to current section)
+     ============================================================ */
+  const stepMap = { game: 2, slope: 2, lab: 2, karpef: 2 };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const step = stepMap[entry.target.id];
+        document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+        const card = document.querySelector(`.step-card[data-step="${step}"]`);
+        if(card) card.classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+  ['game','slope','lab','karpef'].forEach(id => {
+    const node = document.getElementById(id);
+    if(node) observer.observe(node);
+  });
+
+})();
+</script>
+</body>
+</html>
