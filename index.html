@@ -211,9 +211,9 @@
     display:grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr));
     gap: 18px;
   }
-  .flip-card{ perspective: 1200px; height: 230px; cursor:pointer; }
+  .flip-card{ perspective: 1200px; height: 256px; cursor:pointer; }
   .flip-inner{
-    position:relative; width:100%; height:100%; transition: transform .5s;
+    position:relative; width:100%; height: calc(100% - 26px); transition: transform .5s;
     transform-style: preserve-3d;
   }
   .flip-card.flipped .flip-inner{ transform: rotateY(180deg); }
@@ -298,6 +298,36 @@
   .opinion-list li.ok{ background: var(--green-soft); }
   .opinion-list .verdict-pill{ margin: 4px 0 2px; }
   .meter-summary{ font-weight:600; margin: 0 0 12px; }
+
+  /* ---------- Intro, Rent & Bread ---------- */
+  .three-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 760px){ .three-grid{ grid-template-columns: 1fr; } }
+  .three-grid .slope-card h4{ margin: 0 0 6px; }
+  .three-grid .slope-card p{ font-size:.9rem; color: var(--ink-soft); margin: 0 0 8px; }
+  .three-grid a.jump{ font-size:.85rem; font-weight:600; }
+  .chain-caption{ min-height: 150px; }
+  .chain-caption h4{ margin: 0 0 6px; }
+  .chain-caption p{ font-size:.92rem; margin: 0 0 8px; }
+  .chain-nav{ display:flex; gap:10px; align-items:center; margin-top: 14px; }
+  .chain-nav .dots{ font-size:.8rem; color: var(--ink-soft); margin-left:auto; }
+  .order-pool{ display:flex; flex-direction:column; gap: 8px; }
+  .order-pool button{
+    text-align:left; font: inherit; font-size:.9rem; line-height:1.4;
+    border: 2px solid var(--line); background:#fff; border-radius: 10px; padding: 10px 12px; cursor:pointer;
+  }
+  .order-pool button:hover{ border-color: var(--gold); }
+  .order-pool button.nope{ border-color: var(--red); background: var(--red-soft); animation: shake .3s; }
+  @keyframes shake{ 25%{ transform: translateX(-4px); } 75%{ transform: translateX(4px); } }
+  .order-list{ list-style:none; counter-reset: step; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .order-list li{ counter-increment: step; background: var(--green-soft); border-radius:10px; padding: 10px 12px 10px 44px; position:relative; font-size:.9rem; }
+  .order-list li::before{
+    content: counter(step); position:absolute; left:12px; top:10px; width:22px; height:22px; border-radius:50%;
+    background: var(--green); color:#fff; font-size:.75rem; font-weight:700; display:flex; align-items:center; justify-content:center;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .order-hint{ font-size:.85rem; color: var(--red); min-height: 1.3em; margin: 8px 0 0; }
+  .builder-label{ font-size:.85rem; font-weight:600; }
+  select.builder-select{ font: inherit; font-size:.88rem; padding: 6px 10px; border-radius: 8px; border:1px solid var(--line); background:#fff; max-width:100%; }
   .table-scroll{ overflow-x:auto; background:#fff; border:1px solid var(--line); border-radius: var(--radius); }
   .shita-table{ width:100%; min-width: 760px; border-collapse: collapse; font-size:.86rem; }
   .shita-table th, .shita-table td{ padding: 10px 12px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line); }
@@ -329,15 +359,13 @@
 
 <header class="hero">
   <div class="wrap">
-    <span class="eyebrow">Based on Halachipedia · Hotzaah &amp; Eruvin</span>
+    <span class="eyebrow">Based on Halachipedia&rsquo;s eruv articles</span>
     <h1 class="title">Interactive Eruv Map <span class="hebrew">עירוב</span></h1>
     <p class="lede">
       An eruv lets a community carry outside on Shabbat by halachically enclosing the
       neighborhood. <strong>Build one yourself</strong> &mdash; check whether the city can
-      have an eruv at all, place the walls, judge the tricky pole-and-wire cases, and explore
-      the geometry of a slope &mdash; all drawn from the sources collected on Halachipedia&rsquo;s
-      <a href="https://halachipedia.com/index.php?title=Hotzaah" target="_blank" rel="noopener">Hotzaah</a> and
-      <a href="https://halachipedia.com/index.php?title=Eruvin" target="_blank" rel="noopener">Eruvin</a> articles.
+      have an eruv at all, place the walls, rent the streets and share the bread &mdash; all drawn
+      from the sources collected on Halachipedia (listed at the bottom of the page).
     </p>
 
     <div class="steps-row" id="stepsRow">
@@ -351,19 +379,141 @@
         <h3>Build the Walls</h3>
         <p>Buildings, fences, and <em>tzurot hapetach</em> close every gap. <strong>Play: Build the Block.</strong></p>
       </div>
-      <div class="step-card" data-step="3">
+      <div class="step-card" data-step="3" data-target="rent">
         <span class="num">3</span>
         <h3>Rent the Reshut</h3>
-        <p><em>Shechirut reshut</em> &mdash; renting the public areas from the municipality or police.</p>
+        <p><em>Sechirut reshut</em> &mdash; renting the public areas from the municipality or police. <strong>Play: Rental Builder.</strong></p>
       </div>
-      <div class="step-card" data-step="4">
+      <div class="step-card" data-step="4" data-target="bread">
         <span class="num">4</span>
         <h3>Share the Bread</h3>
-        <p>An <em>eruv chatzerot</em>: a box of bread or matzah held in common by the community.</p>
+        <p>An <em>eruv chatzerot</em>: a box of bread or matzah held in common by the community. <strong>Play: Make the Eruv.</strong></p>
       </div>
     </div>
   </div>
 </header>
+
+<!-- ================= START HERE: THE MODERN ERUV ================= -->
+<section class="block" id="intro">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Start Here</span>
+      <h2>What Makes an Eruv Work</h2>
+      <p>
+        Based on Rav Hershel Schachter&rsquo;s
+        <a href="https://halachipedia.com/index.php?title=Introduction_to_the_Modern_Eruv" target="_blank" rel="noopener">Introduction to the Modern Eruv</a>.
+        Tags in this section read &ldquo;Intro [N]&rdquo;. Turning a public area into a private one takes
+        three things <span class="source-tag">Intro [1]</span>:
+      </p>
+    </div>
+
+    <div class="three-grid">
+      <div class="slope-card">
+        <h4>1. A border</h4>
+        <p>Walls, or more practically a chain of <em>tzurot hapetach</em> (posts with a string on top),
+          around the whole area. It&rsquo;s the most recognizable part, and the hardest to build.</p>
+        <a class="jump" href="#city">Steps 1 &amp; 2 &darr;</a>
+      </div>
+      <div class="slope-card">
+        <h4>2. A rental</h4>
+        <p>A deed renting the area from the local government, so non-Jewish neighbors&rsquo; rights
+          don&rsquo;t block carrying.</p>
+        <a class="jump" href="#rent">Step 3 &darr;</a>
+      </div>
+      <div class="slope-card">
+        <h4>3. Shared food</h4>
+        <p>Food the whole community owns together, usually a box of matzah in the shul. In the
+          gemara, this food is what the word &ldquo;eruv&rdquo; actually means.</p>
+        <a class="jump" href="#bread">Step 4 &darr;</a>
+      </div>
+    </div>
+
+    <h3 class="subhead">Why a String Isn&rsquo;t Always Enough</h3>
+    <p>
+      The poskim generally assume a border of <em>tzurot hapetach</em> only works where the area
+      isn&rsquo;t a true, biblical <em>reshut harabbim</em>. The article gives two explanations.
+    </p>
+    <div class="slope-layout">
+      <div class="slope-card">
+        <h4>Is the string a real wall?</h4>
+        <p style="font-size:.92rem;">The <strong>Pri Megadim</strong> suggested a tzurat hapetach is a wall only
+          rabbinically, so it can&rsquo;t convert a biblical public domain <span class="source-tag">Intro [4]</span>.
+          The <strong>Chazon Ish</strong> disagreed: the gemara uses a tzurat hapetach to separate
+          <em>kil&rsquo;ayim</em>, a biblical law, so it must be a real wall <span class="source-tag">Intro [5]</span>.
+          Defenders of the Pri Megadim answer that dividing plants only needs a divider, while a Shabbat
+          border has to visibly enclose an area <span class="source-tag">Intro [6]</span>.</p>
+      </div>
+      <div class="slope-card">
+        <h4>A &ldquo;flimsy wall&rdquo;</h4>
+        <p style="font-size:.92rem;">All agree a flimsy barrier stops counting when traffic regularly
+          crosses it. <strong>Tosafot</strong> held that where only a rabbinic wall is needed, even a flimsy
+          one survives traffic <span class="source-tag">Intro [7]</span>, and the <strong>Maharam</strong> extended this
+          to every rabbinic case. So the consensus is that a tzurat hapetach only works where the area
+          would otherwise be biblically a <em>makom patur</em> <span class="source-tag">Intro [8]</span>.</p>
+      </div>
+    </div>
+
+    <h3 class="subhead">Four Ways a City Can Avoid Being a <em>Reshut Harabbim</em></h3>
+    <p>Almost every street that needs an eruv is wider than 16 amot <span class="source-tag">Intro [9]</span>, so
+      something else has to keep the city from being a reshut harabbim. Click a card to see each argument.</p>
+    <div class="plot-grid" id="routeGrid"></div>
+    <div class="plot-detail" id="routeDetail"></div>
+
+    <h3 class="subhead">The Chazon Ish&rsquo;s Chain of Streets</h3>
+    <p>The article&rsquo;s diagram, made interactive. Step through how one dead-end street can turn a whole
+      city into a <em>reshut hayachid</em>.</p>
+    <div class="game-layout">
+      <div class="map-card">
+        <svg viewBox="0 0 400 330" id="chainSvg" font-family="Georgia, serif">
+          <rect x="0" y="0" width="400" height="330" fill="#f6efe0"/>
+          <!-- streets -->
+          <rect x="180" y="10" width="40" height="290" fill="#ddd5c4"/>
+          <rect x="10" y="60" width="380" height="30" fill="#ddd5c4"/>
+          <rect x="10" y="140" width="380" height="30" fill="#ddd5c4"/>
+          <rect x="10" y="220" width="380" height="30" fill="#ddd5c4"/>
+          <!-- stage fills -->
+          <rect class="chain-layer" data-stage="4" x="10" y="10" width="380" height="290" fill="#3f7d53" opacity=".18"/>
+          <rect class="chain-layer" data-stage="2" x="180" y="10" width="40" height="290" fill="#3f7d53" opacity=".35"/>
+          <g class="chain-layer" data-stage="3" fill="#3f7d53" opacity=".35">
+            <rect x="10" y="60" width="170" height="30"/><rect x="220" y="60" width="170" height="30"/>
+            <rect x="10" y="140" width="170" height="30"/><rect x="220" y="140" width="170" height="30"/>
+            <rect x="10" y="220" width="170" height="30"/><rect x="220" y="220" width="170" height="30"/>
+          </g>
+          <!-- blocks of buildings -->
+          <g fill="#c9b49a">
+            <rect x="10" y="10" width="170" height="50"/><rect x="220" y="10" width="170" height="50"/>
+            <rect x="10" y="90" width="170" height="50"/><rect x="220" y="90" width="170" height="50"/>
+            <rect x="10" y="170" width="170" height="50"/><rect x="220" y="170" width="170" height="50"/>
+            <rect x="10" y="250" width="170" height="50"/><rect x="220" y="250" width="170" height="50"/>
+          </g>
+          <rect x="10" y="300" width="380" height="18" fill="#a9876a"/>
+          <text x="200" y="313" text-anchor="middle" font-size="10" fill="#fff">Buildings: Street A&rsquo;s dead end</text>
+          <!-- stage lines -->
+          <g class="chain-layer" data-stage="1" stroke="#3f7d53" stroke-width="5">
+            <path d="M180 10V60M180 90V140M180 170V220M180 250V300M220 10V60M220 90V140M220 170V220M220 250V300"/>
+          </g>
+          <line class="chain-layer" data-stage="2" x1="180" y1="300" x2="220" y2="300" stroke="#3f7d53" stroke-width="6"/>
+          <g class="chain-layer" data-stage="3" stroke="#b9892f" stroke-width="3" stroke-dasharray="5 4">
+            <path d="M180 60V90M180 140V170M180 220V250M220 60V90M220 140V170M220 220V250"/>
+          </g>
+          <!-- labels -->
+          <g font-size="14" font-weight="700" fill="#5c5147" text-anchor="middle">
+            <text x="200" y="40">A</text><text x="200" y="120">A</text><text x="200" y="200">A</text><text x="200" y="280">A</text>
+            <text x="40" y="80">B</text><text x="40" y="160">C</text><text x="40" y="240">D</text>
+          </g>
+        </svg>
+      </div>
+      <div class="progress-panel">
+        <div class="chain-caption" id="chainCaption"></div>
+        <div class="chain-nav">
+          <button class="btn" id="chainBack">&larr; Back</button>
+          <button class="btn primary" id="chainNext">Next &rarr;</button>
+          <span class="dots" id="chainDots"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ================= STEP 1: CHECK THE CITY ================= -->
 <section class="block" id="city">
@@ -752,14 +902,119 @@
   </div>
 </section>
 
+<!-- ================= STEP 3: RENT THE RESHUT ================= -->
+<section class="block" id="rent">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Step 3 &middot; Hands-on</span>
+      <h2>Rental Builder</h2>
+      <p>
+        If a non-Jew lives inside the eruv, the Jews must rent his rights to the shared areas. This
+        is called <em>sechirut reshut</em> <span class="source-tag">Sechirut [1]</span>. Set the terms of
+        the rental below and see whether it holds up. Tags in this section refer to Halachipedia&rsquo;s
+        <a href="https://halachipedia.com/index.php?title=Sechirut_Reshut" target="_blank" rel="noopener">Sechirut Reshut</a> article.
+      </p>
+    </div>
+    <div class="slope-layout">
+      <div class="slope-card">
+        <div class="control-row">
+          <span class="builder-label">Jews living there:</span>
+          <div class="toggle-pair" id="rentJews">
+            <button data-val="one">one family</button>
+            <button data-val="many" class="active">two or more</button>
+          </div>
+        </div>
+        <div class="control-row">
+          <label class="builder-label" for="rentFrom">Rent from:</label>
+          <select class="builder-select" id="rentFrom">
+            <option value="owner">the non-Jewish homeowner</option>
+            <option value="mayor" selected>the mayor / city government</option>
+            <option value="police">the chief of police</option>
+            <option value="super">an apartment building&rsquo;s superintendent</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <span class="builder-label">Form:</span>
+          <div class="toggle-pair" id="rentForm">
+            <button data-val="verbal" class="active">spoken</button>
+            <button data-val="signed">signed document</button>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="builder-label">Payment:</span>
+          <div class="toggle-pair" id="rentPay">
+            <button data-val="nominal" class="active">a token sum</button>
+            <button data-val="free">nothing (a free loan)</button>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="builder-label">Term:</span>
+          <div class="toggle-pair" id="rentTerm">
+            <button data-val="fixed" class="active">fixed term</button>
+            <button data-val="open">no end date</button>
+          </div>
+        </div>
+      </div>
+      <div class="slope-card">
+        <p class="meter-summary" id="rentSummary"></p>
+        <ul class="opinion-list" id="rentList"></ul>
+      </div>
+    </div>
+
+    <h3 class="subhead">Who Can Rent It to You?</h3>
+    <p>Guess, then tap to flip.</p>
+    <div class="card-grid" id="rentCards"></div>
+  </div>
+</section>
+
+<!-- ================= STEP 4: SHARE THE BREAD ================= -->
+<section class="block" id="bread">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Step 4 &middot; Hands-on</span>
+      <h2>Make the Eruv Chatzerot</h2>
+      <p>
+        The last piece is food the whole community owns together, which shows that everyone
+        &ldquo;lives&rdquo; in one place <span class="source-tag">Chatzerot [3]</span>. Shlomo Hamelech instituted it
+        so people wouldn&rsquo;t come to carry in a <em>reshut harabbim</em> <span class="source-tag">Chatzerot [2]</span>.
+        Tap the steps of making one in the right order. Tags here refer to Halachipedia&rsquo;s
+        <a href="https://halachipedia.com/index.php?title=Eruv_Chatzerot" target="_blank" rel="noopener">Eruv Chatzerot</a> article.
+      </p>
+    </div>
+    <div class="game-layout">
+      <div class="map-card">
+        <h3 style="margin-top:0; font-size:1.05rem;">Tap the next step</h3>
+        <div class="order-pool" id="breadPool"></div>
+        <p class="order-hint" id="breadHint"></p>
+      </div>
+      <div class="progress-panel" id="breadPanel">
+        <h3>Your eruv, in order: <span id="breadCount">0</span> / 7</h3>
+        <ol class="order-list" id="breadList"></ol>
+        <div class="win-banner" id="breadWin">
+          🎉 Your eruv chatzerot is made! With a border, a rental and the shared food, all four
+          steps are done. In real life, the community&rsquo;s rav and eruv committee would still check every piece.
+        </div>
+        <div style="margin-top:14px;">
+          <button class="btn" id="resetBread">Start over</button>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="subhead">Do You Need One Here?</h3>
+    <p>Common cases from the article. Guess, then tap to flip.</p>
+    <div class="card-grid" id="breadCards"></div>
+  </div>
+</section>
+
 <footer>
   <div class="wrap">
     <h3>Sources &amp; further reading</h3>
     <ul>
       <li><a href="https://halachipedia.com/index.php?title=Eruvin" target="_blank" rel="noopener">Eruvin &ndash; Halachipedia</a> (source for Step 2 and the labs; plain bracketed numbers and &ldquo;Eruvin [N]&rdquo; tags match that article&rsquo;s footnotes)</li>
       <li><a href="https://halachipedia.com/index.php?title=Hotzaah" target="_blank" rel="noopener">Hotzaah &ndash; Halachipedia</a> (source for Step 1, the City Inspector; &ldquo;Hotzaah [N]&rdquo; tags match that article&rsquo;s footnotes)</li>
-      <li><a href="https://halachipedia.com/index.php?title=Introduction_to_the_Modern_Eruv" target="_blank" rel="noopener">Introduction to the Modern Eruv</a> &ndash; Rav Hershel Schachter</li>
-      <li><a href="https://halachipedia.com/index.php?title=Eruv_Chatzerot" target="_blank" rel="noopener">Eruv Chatzerot</a></li>
+      <li><a href="https://halachipedia.com/index.php?title=Introduction_to_the_Modern_Eruv" target="_blank" rel="noopener">Introduction to the Modern Eruv &ndash; Halachipedia</a> (Rav Hershel Schachter; source for Start Here and three flashcards; &ldquo;Intro [N]&rdquo; tags)</li>
+      <li><a href="https://halachipedia.com/index.php?title=Sechirut_Reshut" target="_blank" rel="noopener">Sechirut Reshut &ndash; Halachipedia</a> (source for Step 3; &ldquo;Sechirut [N]&rdquo; tags)</li>
+      <li><a href="https://halachipedia.com/index.php?title=Eruv_Chatzerot" target="_blank" rel="noopener">Eruv Chatzerot &ndash; Halachipedia</a> (source for Step 4; &ldquo;Chatzerot [N]&rdquo; tags)</li>
     </ul>
     <div class="fine-print">
       This page is a learning game, not a halachic ruling and not a map of any real eruv.
@@ -1326,30 +1581,57 @@
       verdictLabel: "Mostly Pasul",
       back: "Many poskim invalidate this, since the wire isn't sitting over the top the way a lintel should. If there's an actual notch cut at that height, it's a different (and valid) case.",
       source: "[27]"
+    },
+    {
+      title: "Wobbly Poles",
+      q: "The eruv's posts are so thin and wobbly they could never actually hold up a door. Kosher?",
+      verdict: "dispute",
+      verdictLabel: "Questionable",
+      back: "The posts must be sturdy enough to hold a light door spanning the opening, and the wider the gap, the sturdier they must be. Rav Schachter notes that many modern eruv poles are too wobbly for that, which calls those eruvin into question.",
+      source: "Intro [21]"
+    },
+    {
+      title: "Posts Hovering Over the Ground",
+      q: "The posts stop just short of the ground, within 3 tefachim. By lavud, anything that close counts as touching. Kosher?",
+      verdict: "dispute",
+      verdictLabel: "Disputed — Chazon Ish: Pasul",
+      back: "The Shaarei Teshuvah and the Steipler accepted it. The Chazon Ish invalidated it: no builder would make a doorframe that way, so lavud can't be used for a tzurat hapetach.",
+      source: "Intro [24]"
+    },
+    {
+      title: "Misaligned Doorposts",
+      q: "A tzurat hapetach closes the fourth side of an enclosure, but one post stands left of the gap and the other right of it. Kosher?",
+      verdict: "pasul",
+      verdictLabel: "Pasul",
+      back: "The Steipler and the Chazon Ish agree the tzurat hapetach doesn't work if its posts don't line up with the gap in the wall.",
+      source: "Intro [25]"
     }
   ];
 
-  const cardGrid = document.getElementById('cardGrid');
-  flashcards.forEach((card, idx) => {
-    const el = document.createElement('div');
-    el.className = 'flip-card';
-    el.innerHTML = `
-      <div class="flip-inner">
-        <div class="flip-face flip-front">
-          <span class="kicker">Case ${idx+1}</span>
-          <h4>${card.title}</h4>
-          <p class="q">${card.q}</p>
+  function renderFlipCards(gridId, cards){
+    const grid = document.getElementById(gridId);
+    cards.forEach((card, idx) => {
+      const el = document.createElement('div');
+      el.className = 'flip-card';
+      el.innerHTML = `
+        <div class="flip-inner">
+          <div class="flip-face flip-front">
+            <span class="kicker">Case ${idx+1}</span>
+            <h4>${card.title}</h4>
+            <p class="q">${card.q}</p>
+          </div>
+          <div class="flip-face flip-back">
+            <span class="verdict-pill ${card.verdict}">${card.verdictLabel}</span>
+            <p>${card.back}</p>
+            <span class="source-tag">${card.source}</span>
+          </div>
         </div>
-        <div class="flip-face flip-back">
-          <span class="verdict-pill ${card.verdict}">${card.verdictLabel}</span>
-          <p>${card.back}</p>
-          <span class="source-tag">${card.source}</span>
-        </div>
-      </div>
-      <div class="tap-hint">Tap to flip</div>`;
-    el.addEventListener('click', () => el.classList.toggle('flipped'));
-    cardGrid.appendChild(el);
-  });
+        <div class="tap-hint">Tap to flip</div>`;
+      el.addEventListener('click', () => el.classList.toggle('flipped'));
+      grid.appendChild(el);
+    });
+  }
+  renderFlipCards('cardGrid', flashcards);
 
   /* ============================================================
      Slope geometry lab
@@ -1479,9 +1761,313 @@
   });
 
   /* ============================================================
+     Start Here: ways a city avoids reshut harabbim (Intro footnotes)
+     ============================================================ */
+  const routes = [
+    {
+      name: "Under 600,000 people", mini: "Rashi & Tosafot", tone: "yes",
+      detail: "Rashi and Tosafot learned from the 600,000 in the desert camp that a public domain needs a population of 600,000. Many towns in Eastern Europe relied on this for their eruvin. Some (Taz, Aruch Hashulchan) treated it as well accepted, while the Mishkenot Yaakov argued that many rishonim reject it. And per the Ramban, a highway between cities is public even without 600,000.",
+      source: "Intro [10], [12]–[14]"
+    },
+    {
+      name: "No street runs straight through", mini: "Rav Shlomo Dovid Kahana", tone: "mixed",
+      detail: "A reshut harabbim must run straight from one end of the city to the other (mefulash). If the main street turns or dead-ends, the area isn't biblically public, so the bigger the city, the likelier this works. Rav Moshe Feinstein disagreed, though his own reading of mefulash isn't generally accepted. Highways stay public even if they twist.",
+      source: "Intro [16]"
+    },
+    {
+      name: "Too many main streets", mini: "Aruch Hashulchan · not accepted", tone: "no",
+      detail: "Reading the Yerushalmi, the Aruch Hashulchan defined a public domain as the town's one known main street, so a city with several main streets has none. This has traditionally been considered counter-intuitive and hasn't been accepted.",
+      source: "Intro [15]"
+    },
+    {
+      name: "Walls made of buildings", mini: "Chazon Ish", tone: "mixed",
+      detail: "Rows of buildings can act as walls, and a single dead-end street can set off a chain that encloses a whole city. Step through it in the diagram below.",
+      source: "Intro [17]–[20]"
+    }
+  ];
+  const routeGrid = document.getElementById('routeGrid');
+  const routeDetail = document.getElementById('routeDetail');
+  routes.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'plot-card';
+    el.innerHTML = `
+      <svg class="plot-icon" viewBox="0 0 100 50"><rect width="100" height="50" rx="8" fill="${toneColor[r.tone][0]}"/></svg>
+      <h4>${r.name}</h4>
+      <div class="mini">${r.mini}</div>`;
+    el.addEventListener('click', () => {
+      routeDetail.innerHTML = `<h4>${r.name} &mdash; <span style="color:${toneColor[r.tone][1]}">${r.mini}</span></h4>
+        <p style="margin:0 0 6px;">${r.detail}</p>
+        <span class="source-tag">${r.source}</span>`;
+      routeDetail.classList.add('show');
+      routeDetail.scrollIntoView({behavior:'smooth', block:'nearest'});
+    });
+    routeGrid.appendChild(el);
+  });
+
+  /* ============================================================
+     Start Here: the Chazon Ish's chain of streets
+     ============================================================ */
+  const chainStages = [
+    {
+      title: "A city of streets",
+      text: "In a big city, buildings often line both sides of every street with no gaps between them. Can those rows of buildings serve as eruv walls? Press Next.",
+      source: "Intro [17]"
+    },
+    {
+      title: "Two walls",
+      text: "Each side of Street A is a row of buildings broken only by cross streets. Most of that border is standing wall, so it counts as one long wall. The cross streets are gaps over 10 amot: the accepted view (Beit Efrayim) says that only disqualifies the wall rabbinically, while the Mishkenot Yaakov says it isn't a wall even biblically.",
+      source: "Intro [17]–[18]"
+    },
+    {
+      title: "A dead end makes three",
+      text: "Street A ends at another row of buildings. With three walls, it's a biblical reshut hayachid. Rav Moshe Feinstein found it hard to count a building's walls as walls of the street, since they were built to enclose the building, but the gemara seems to support the Chazon Ish.",
+      source: "Intro [17], [19]"
+    },
+    {
+      title: "The chain reaction",
+      text: "The imaginary lines that close off Street A's gaps (dashed) now act as a third wall for each half of Streets B, C and D. Each is already lined with buildings on both sides, so they become reshut hayachid too.",
+      source: "Intro [17]"
+    },
+    {
+      title: "The whole city?",
+      text: "Keep spreading from street to street and the entire city becomes a reshut hayachid, so it isn't a biblical public domain and an eruv of tzurot hapetach can work. Rav Schachter notes that this last extension is questionable and needs further investigation.",
+      source: "Intro [8], [20]"
+    }
+  ];
+  let chainStage = 0;
+  function renderChain(){
+    document.querySelectorAll('#chainSvg .chain-layer').forEach(layer => {
+      layer.style.display = Number(layer.dataset.stage) <= chainStage ? '' : 'none';
+    });
+    const s = chainStages[chainStage];
+    document.getElementById('chainCaption').innerHTML =
+      `<h4>${s.title}</h4><p>${s.text}</p><span class="source-tag">${s.source}</span>`;
+    document.getElementById('chainDots').textContent = `${chainStage + 1} / ${chainStages.length}`;
+    document.getElementById('chainBack').disabled = chainStage === 0;
+    document.getElementById('chainNext').disabled = chainStage === chainStages.length - 1;
+  }
+  document.getElementById('chainBack').addEventListener('click', () => { chainStage--; renderChain(); });
+  document.getElementById('chainNext').addEventListener('click', () => { chainStage++; renderChain(); });
+  renderChain();
+
+  /* ============================================================
+     Step 3: Rental builder (Sechirut Reshut footnotes)
+     ============================================================ */
+  const rent = { jews: 'many', form: 'verbal', pay: 'nominal', term: 'fixed' };
+  const rentFrom = document.getElementById('rentFrom');
+  const rentSources = {
+    owner:  { ok: true,  text: "The owner can rent out his rights, and so can his wife or a worker of his who uses the area.", src: "Sechirut [21]" },
+    mayor:  { ok: false, text: "Most poskim: renting from the city lets you carry from Jewish homes into the streets and public areas, but not into non-Jewish homes. One view forbids even the streets; another allows the homes too.", src: "Sechirut [14]–[18], [20]" },
+    police: { ok: false, text: "The Chazon Ish allows renting from the police chief, who is like a worker for the citizens. In practice it covers the streets, not non-Jewish homes.", src: "Sechirut [19]–[20]" },
+    super:  { ok: false, text: "Renting the lobby and hallways from the superintendent lets you carry from Jewish apartments into them, but not into non-Jewish apartments. Some limit this to a super with rights beyond his job.", src: "Sechirut [26]–[28]" }
+  };
+
+  function updateRent(){
+    const rows = [];
+    if(rent.jews === 'one'){
+      rows.push({ ok: true, title: "No rental needed", text: "With only one Jew or Jewish family living among non-Jews, chazal didn't require sechirut reshut.", src: "Sechirut [2]" });
+    } else {
+      const who = rentSources[rentFrom.value];
+      rows.push({ ok: who.ok, title: "Who", text: who.text, src: who.src });
+      rows.push({ ok: true, title: "Form", text: "A spoken rental works, and a signed document certainly does.", src: "Sechirut [3]" });
+      rows.push(rent.pay === 'nominal'
+        ? { ok: true, title: "Payment", text: "There's no minimum. Even less than a pruta works if the non-Jew agrees.", src: "Sechirut [8]" }
+        : { ok: false, title: "Payment", text: "A free loan (sheylat reshut) is disputed. Initially, don't rely on one.", src: "Sechirut [9]" });
+      rows.push(rent.term === 'fixed'
+        ? { ok: true, title: "Term", text: "A set term, even many years, is fine, and it stays valid if the non-Jew dies, sells or rents to someone else. Brooklyn's eruv rented from the mayor for 99 years for $1.", src: "Sechirut [3], [10], [13]" }
+        : { ok: false, title: "Term", text: "It works until the non-Jew retracts, but if he dies, sells or rents to another non-Jew, you need a new rental.", src: "Sechirut [11]–[12]" });
+      rows.push({ ok: true, title: "Good to know", text: "One person can rent on behalf of every Jew in the eruv. Ideally, do it before making the eruv chatzerot (Step 4).", src: "Sechirut [4], [6]" });
+    }
+    document.getElementById('rentList').innerHTML = rows.map(r => `
+      <li class="${r.ok ? 'ok' : ''}">
+        <strong>${r.title}</strong>
+        <div>${r.text} <span class="source-tag">${r.src}</span></div>
+      </li>`).join('');
+    const caveats = rows.filter(r => !r.ok).length;
+    document.getElementById('rentSummary').textContent = rent.jews === 'one'
+      ? "Nothing to rent here."
+      : caveats === 0 ? "This rental holds up." : `This rental works, with ${caveats} caveat${caveats > 1 ? 's' : ''}.`;
+  }
+
+  [['rentJews','jews'], ['rentForm','form'], ['rentPay','pay'], ['rentTerm','term']].forEach(([id, key]) => {
+    const pair = document.getElementById(id);
+    pair.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        pair.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        rent[key] = btn.dataset.val;
+        updateRent();
+      });
+    });
+  });
+  rentFrom.addEventListener('change', updateRent);
+  updateRent();
+
+  renderFlipCards('rentCards', [
+    {
+      title: "The Homeowner's Wife",
+      q: "The non-Jewish homeowner is away. Can his wife rent you his rights?",
+      verdict: "kosher", verdictLabel: "Works",
+      back: "Yes. You can rent from the owner, his wife, or a worker of his who uses the area.",
+      source: "Sechirut [21]"
+    },
+    {
+      title: "The City Government",
+      q: "Can you rent the streets from the mayor's office?",
+      verdict: "dispute", verdictLabel: "Works for the streets",
+      back: "Some allow it because the government can close streets; others don't, since it doesn't own them. Most poskim hold it covers the streets and public areas, but not non-Jewish homes.",
+      source: "Sechirut [14]–[16], [20]"
+    },
+    {
+      title: "A King Who Billets Troops",
+      q: "A king can house his soldiers in any citizen's home. Can he rent you the whole town?",
+      verdict: "kosher", verdictLabel: "Classically, yes",
+      back: "Yes, that power made him like the owner. In today's democracies it usually doesn't apply; in America, the Third Amendment took that power away.",
+      source: "Sechirut [23], [25]"
+    },
+    {
+      title: "A Non-Jewish Guest",
+      q: "A non-Jew is staying as a guest in a Jewish home. Do you need to rent from him?",
+      verdict: "kosher", verdictLabel: "No rental needed",
+      back: "No. A guest at a Jew's house doesn't require sechirut reshut.",
+      source: "Sechirut [29]"
+    },
+    {
+      title: "Only One Jewish Family",
+      q: "One Jewish family lives on a street of non-Jews. Do they need a rental?",
+      verdict: "kosher", verdictLabel: "No rental needed",
+      back: "No. Chazal only required sechirut reshut when at least two Jews live alongside a non-Jew.",
+      source: "Sechirut [2]"
+    },
+    {
+      title: "The Rental Expired",
+      q: "The rental ran out, but the eruv's box of matzah is still in the shul. Is the eruv still good?",
+      verdict: "pasul", verdictLabel: "Redo both",
+      back: "No. An eruv doesn't work without the rental, so you need a new rental and a new eruv chatzerot.",
+      source: "Sechirut [5]"
+    }
+  ]);
+
+  /* ============================================================
+     Step 4: Make the eruv chatzerot (Eruv Chatzerot footnotes)
+     ============================================================ */
+  const breadSteps = [
+    { text: "Take bread or matzah, at least 6–8 kebeitzim. A box of matzah is traditional because it lasts.",
+      hint: "First you need the food itself.", src: "Chatzerot [4]–[7]" },
+    { text: "Hand it to an unrelated Jewish adult, who acquires it for every Jew in the community, including anyone who moves in before Pesach.",
+      hint: "Next, the food has to become everyone's.", src: "Chatzerot [9]–[10]" },
+    { text: "The recipient lifts the box a tefach.",
+      hint: "How does the recipient acquire it?", src: "Chatzerot [11]" },
+    { text: "Take it back and recite the bracha “al mitzvat eruv” (only if you're sure an eruv chatzerot is needed).",
+      hint: "The giver takes it back. What does he say first?", src: "Chatzerot [12]" },
+    { text: "Declare “Bahadein eruva…”: with this eruv we may carry between the houses and the courtyard.",
+      hint: "After the bracha, say what the eruv permits.", src: "Chatzerot [13]" },
+    { text: "Store it where the community can reach it on Shabbat: the shul for Ashkenazim, a home for Sephardim.",
+      hint: "Where does it go so people can rely on it?", src: "Chatzerot [15]–[17]" },
+    { text: "Renew it every Pesach.",
+      hint: "It doesn't last forever. When is it redone?", src: "Chatzerot [14]" }
+  ];
+  let breadNext = 0;
+  const breadPool = document.getElementById('breadPool');
+  const breadHint = document.getElementById('breadHint');
+
+  function resetBread(){
+    breadNext = 0;
+    document.getElementById('breadList').innerHTML = '';
+    document.getElementById('breadCount').textContent = 0;
+    document.getElementById('breadWin').classList.remove('show');
+    breadHint.textContent = '';
+    // shuffle a copy of the step indexes for the pool
+    const order = breadSteps.map((_, i) => i);
+    for(let i = order.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    breadPool.innerHTML = order.map(i => `<button data-i="${i}">${breadSteps[i].text}</button>`).join('');
+    breadPool.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => pickBread(btn)));
+  }
+
+  function pickBread(btn){
+    const i = Number(btn.dataset.i);
+    if(i !== breadNext){
+      btn.classList.remove('nope');
+      void btn.offsetWidth; // restart the shake animation
+      btn.classList.add('nope');
+      breadHint.textContent = 'Not yet. ' + breadSteps[breadNext].hint;
+      return;
+    }
+    breadPool.querySelectorAll('button').forEach(b => b.classList.remove('nope'));
+    breadHint.textContent = '';
+    btn.remove();
+    const li = document.createElement('li');
+    li.innerHTML = `${breadSteps[i].text} <span class="source-tag">${breadSteps[i].src}</span>`;
+    document.getElementById('breadList').appendChild(li);
+    breadNext++;
+    document.getElementById('breadCount').textContent = breadNext;
+    if(breadNext === breadSteps.length){
+      document.getElementById('breadWin').classList.add('show');
+      launchConfetti(document.getElementById('breadPanel'));
+    }
+  }
+  document.getElementById('resetBread').addEventListener('click', resetBread);
+  resetBread();
+
+  renderFlipCards('breadCards', [
+    {
+      title: "Apartment Building",
+      q: "You live in an apartment building with other Jews. Do you need an eruv chatzerot to carry in the halls?",
+      verdict: "pasul", verdictLabel: "Needed",
+      back: "Yes. Some say a town eruv already covers the building, even for someone who doesn't rely on that eruv.",
+      source: "Chatzerot [30]–[31]"
+    },
+    {
+      title: "College Dorm",
+      q: "Jewish students share a dorm and all eat together in the cafeteria. Do they need one?",
+      verdict: "kosher", verdictLabel: "Generally not needed",
+      back: "Some say no eruv chatzerot is needed when everyone eats together. Rav Soloveitchik held YU's dorm should make one, but the general assumption follows Rav Moshe that it isn't needed.",
+      source: "Chatzerot [32]"
+    },
+    {
+      title: "Hotel Weekend",
+      q: "You're spending Shabbat at a hotel and eating some meals in your room. Do you need one?",
+      verdict: "pasul", verdictLabel: "Needed, per most poskim",
+      back: "Most poskim require an eruv chatzerot in a hotel; a minority exempts all hotels. If every guest eats every meal together in one place, it isn't needed.",
+      source: "Chatzerot [35], [39], [57]"
+    },
+    {
+      title: "Hospital Stay",
+      q: "Do patients in a hospital need an eruv chatzerot?",
+      verdict: "dispute", verdictLabel: "Disputed",
+      back: "Some poskim say no, since staff can move patients from room to room, but it's better to make one and satisfy all opinions.",
+      source: "Chatzerot [33]"
+    },
+    {
+      title: "The Matzah Got Eaten",
+      q: "Someone ate the eruv's matzah on Shabbat afternoon. Can you still carry?",
+      verdict: "kosher", verdictLabel: "Still fine",
+      back: "Yes, for this Shabbat. Replace the food before next Shabbat.",
+      source: "Chatzerot [20]"
+    },
+    {
+      title: "Into a Neighbor's House",
+      q: "There's an eruv. Can you carry into your non-Jewish neighbor's house?",
+      verdict: "pasul", verdictLabel: "Many forbid",
+      back: "Many poskim forbid it. Today's rental generally covers the streets, not private homes.",
+      source: "Chatzerot [24]"
+    },
+    {
+      title: "Over the Backyard Fence",
+      q: "Two backyards inside the eruv are split by a fence with no gate. Can you pass a dish over it?",
+      verdict: "kosher", verdictLabel: "Most are lenient",
+      back: "The Magen Avraham forbids carrying between courtyards without a door, even with an eruv, but most poskim are lenient.",
+      source: "Chatzerot [21]"
+    }
+  ]);
+
+  /* ============================================================
      Step card highlight-on-scroll (ties hero steps to current section)
      ============================================================ */
-  const stepMap = { city: 1, game: 2, slope: 2, lab: 2, karpef: 2 };
+  const stepMap = { city: 1, game: 2, slope: 2, lab: 2, karpef: 2, rent: 3, bread: 4 };
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if(entry.isIntersecting){
@@ -1492,7 +2078,7 @@
       }
     });
   }, { threshold: 0.4 });
-  ['city','game','slope','lab','karpef'].forEach(id => {
+  ['city','game','slope','lab','karpef','rent','bread'].forEach(id => {
     const node = document.getElementById(id);
     if(node) observer.observe(node);
   });

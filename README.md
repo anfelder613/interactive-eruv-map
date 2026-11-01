@@ -1,15 +1,21 @@
 # Interactive Eruv Map
 
 A small, self-contained, playable explainer for how a halachic eruv gets built — based
-entirely on the sources collected in Halachipedia's
-[Eruvin](https://halachipedia.com/index.php?title=Eruvin) and
-[Hotzaah](https://halachipedia.com/index.php?title=Hotzaah) articles (snapshots are included
-here as `source - Eruvin (Halachipedia).pdf` and `source - Hotzaah (Halachipedia).pdf`).
+entirely on the sources collected in five Halachipedia articles:
+[Introduction to the Modern Eruv](https://halachipedia.com/index.php?title=Introduction_to_the_Modern_Eruv),
+[Hotzaah](https://halachipedia.com/index.php?title=Hotzaah),
+[Eruvin](https://halachipedia.com/index.php?title=Eruvin),
+[Sechirut Reshut](https://halachipedia.com/index.php?title=Sechirut_Reshut) and
+[Eruv Chatzerot](https://halachipedia.com/index.php?title=Eruv_Chatzerot). A PDF snapshot of
+each is included here as `source - <article> (Halachipedia).pdf`.
 
 ## What's in it
 
 Open `index.html` in any browser — no build step, no server, no dependencies.
 
+- **Start Here** — the three things every eruv needs (a border, a rental, shared food),
+  why a string border only works outside a true reshut harabbim, four ways a city can avoid
+  being one, and a step-through version of the Chazon Ish's "chain of streets" diagram.
 - **City Inspector (Step 1)** — a town map with seven spots (a fenced yard, a covered
   entranceway, Main Street, an open field, a river, and the same stone post in two
   places). Click each one and sort it into the four Shabbat domains: reshut hayachid,
@@ -34,9 +40,15 @@ Open `index.html` in any browser — no build step, no server, no dependencies.
 - **Karpef explorer** — six sample plots (yard, empty field, garden, pond, grove, karpef)
   showing when an enclosed area still isn't "fit for dwelling" under the karpef rules.
 
+- **Rental Builder (Step 3)** — set the terms of a *sechirut reshut* (who you rent from, spoken
+  or signed, payment, term) and see whether it holds up, plus flip-cards on who can rent it to you.
+- **Make the Eruv (Step 4)** — put the steps of making an *eruv chatzerot* in order, plus
+  flip-cards on when one is needed (apartments, dorms, hotels, hospitals).
+
 Every scenario carries a source tag matching Halachipedia's own footnote numbering, so you
 can trace any claim back to the original article. Plain `[N]` and `Eruvin [N]` tags point to
-the Eruvin article; `Hotzaah [N]` tags (Step 1) point to the Hotzaah article.
+the Eruvin article; `Hotzaah [N]`, `Intro [N]`, `Sechirut [N]` and `Chatzerot [N]` tags point to
+the other four.
 
 ## What it isn't
 
