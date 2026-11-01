@@ -25,6 +25,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
+  html{ scroll-behavior: smooth; }
   body{
     background: var(--cream);
     color: var(--ink);
@@ -112,6 +113,12 @@
     font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; font-weight:700;
     color: var(--blue);
   }
+  .to-top{
+    float:right; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size:.78rem; font-weight:600;
+    text-decoration:none; color: var(--ink); background:#fff; border:1px solid var(--line);
+    border-radius:999px; padding: 4px 12px;
+  }
+  .to-top:hover{ border-color: var(--gold); color: var(--gold); }
   .section-head h2{ margin: 6px 0 8px; font-size: 1.7rem; }
   .section-head p{ color: var(--ink-soft); max-width: 68ch; margin: 0; }
 
@@ -357,7 +364,7 @@
 </head>
 <body>
 
-<header class="hero">
+<header class="hero" id="top">
   <div class="wrap">
     <span class="eyebrow">Based on Halachipedia&rsquo;s eruv articles</span>
     <h1 class="title">Interactive Eruv Map <span class="hebrew">עירוב</span></h1>
@@ -520,6 +527,7 @@
   <div class="wrap">
     <div class="section-head">
       <span class="tag">Step 1 &middot; Hands-on</span>
+      <a class="to-top" href="#top">&uarr; Back to steps</a>
       <h2>City Inspector</h2>
       <p>
         Before anyone strings a wire, you have to know what kind of <em>reshut</em> (domain) each
@@ -733,6 +741,7 @@
   <div class="wrap">
     <div class="section-head">
       <span class="tag">Step 2 &middot; Hands-on</span>
+      <a class="to-top" href="#top">&uarr; Back to steps</a>
       <h2>Build the Block</h2>
       <p>
         This block already has solid walls on two sides &mdash; buildings count as a halachic
@@ -907,6 +916,7 @@
   <div class="wrap">
     <div class="section-head">
       <span class="tag">Step 3 &middot; Hands-on</span>
+      <a class="to-top" href="#top">&uarr; Back to steps</a>
       <h2>Rental Builder</h2>
       <p>
         If a non-Jew lives inside the eruv, the Jews must rent his rights to the shared areas. This
@@ -972,6 +982,7 @@
   <div class="wrap">
     <div class="section-head">
       <span class="tag">Step 4 &middot; Hands-on</span>
+      <a class="to-top" href="#top">&uarr; Back to steps</a>
       <h2>Make the Eruv Chatzerot</h2>
       <p>
         The last piece is food the whole community owns together, which shows that everyone
